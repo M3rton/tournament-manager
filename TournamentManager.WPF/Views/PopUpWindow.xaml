@@ -1,0 +1,12 @@
+﻿<Window x:Class="TournamentManager.WPF.Views.PopUpWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:TournamentManager.WPF.Views"
+        mc:Ignorable="d"
+        Title="InfoBox" Height="150" Width="250" Background="#FF272525">
+    <Grid>
+        <TextBlock Text="{Binding Message}" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="White" TextWrapping="Wrap" TextAlignment="Center"/>
+    </Grid>
+</Window>
