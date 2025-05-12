@@ -49,4 +49,24 @@ internal class UsersRepository : IUsersRepository
                 .LoadAsync();
         }
     }
+
+    public async Task LoadUserTournament(User user)
+    {
+        await _db.Entry(user)
+            .Reference(u => u.Account)
+            .Query()
+            .Include(a => a.Tournament)
+            .LoadAsync();
+
+        if (user.Account.Tournament != null)
+        {
+            await _db.Entry(user.Account.Tournament)
+                .Collection(t => t.Teams)
+                .LoadAsync();
+
+            await _db.Entry(user.Account.Tournament)
+                .Collection(t => t.Matches)
+                .LoadAsync();
+        }
+    }
 }

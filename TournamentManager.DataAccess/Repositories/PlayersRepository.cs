@@ -13,10 +13,18 @@ internal class PlayersRepository : IPlayersRepository
     {
         _db = db;
     }
+
     public async Task<Player?> GetPlayerByName(string playerName)
     {
-        return await _db.Set<Player>()
+        return await _db.Players
             .Where(p => p.Name == playerName)
+            .FirstOrDefaultAsync();
+    }
+
+    public async Task<Player?> GetPlayerById(int playerId)
+    {
+        return await _db.Players
+            .Where(p => p.PlayerId == playerId)
             .FirstOrDefaultAsync();
     }
 }
