@@ -10,6 +10,7 @@ public class Tournament
     public string? Description { get; set; }
     public StrategyType Strategy {  get; set; }
     public int MaxTeams { get; set; }
+    public Team? Winner { get; set; }
     public ObservableCollection<Team> Teams { get; set; }
     public ObservableCollection<Match> Matches { get; set; }
 }
