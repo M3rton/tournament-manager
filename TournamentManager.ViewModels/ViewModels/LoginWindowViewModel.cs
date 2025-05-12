@@ -1,56 +1,83 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using TournamentManager.Core.Entities;
+using TournamentManager.Core.Events;
 using TournamentManager.Core.Interfaces.Navigation;
 using TournamentManager.ViewModels.Interfaces;
 
 namespace TournamentManager.ViewModels.ViewModels;
 
-public class LoginWindowViewModel : ObservableObject, IDisposable
+public partial class LoginWindowViewModel : ObservableObject, IDisposable
 {
+    private readonly IViewModelFactory<LoginViewModel> _loginFactory;
+    private readonly IViewModelFactory<RegisterViewModel> _registerFactory;
     private readonly IWindowManager _windowManager;
 
-    private ILoginViewModel? _currentViewModel;
-    public ILoginViewModel? CurrentViewModel
+    private readonly SignedInEvent _signedEvent;
+    private readonly ChangeViewModelEvent _changeViewModelEvent;
+    private readonly PopUpMessageEvent _popUpMessageEvent;
+
+    [ObservableProperty]
+    private ObservableObject? _currentViewModel;
+
+    private readonly Dictionary<string, Action> _changeViewModelMap;
+
+    public LoginWindowViewModel(
+        IViewModelFactory<LoginViewModel> loginFactory,
+        IViewModelFactory<RegisterViewModel> registerFactory,
+        IEventAggregator eventAggregator,
+        IWindowManager windowManager)
     {
-        get { return _currentViewModel; } 
-        private set
+        _windowManager = windowManager;
+        _loginFactory = loginFactory;
+        _registerFactory = registerFactory;
+
+        _signedEvent = eventAggregator.GetEvent<SignedInEvent>();
+        _changeViewModelEvent = eventAggregator.GetEvent<ChangeViewModelEvent>();
+        _popUpMessageEvent = eventAggregator.GetEvent<PopUpMessageEvent>();
+
+        _signedEvent.Subscribe(OnSignedIn);
+        _changeViewModelEvent.Subscribe(OnChangeViewModel);
+        _popUpMessageEvent.Subscribe(OnPopUpMessage);
+
+        _changeViewModelMap = CreateMap();
+        CurrentViewModel = loginFactory.Create();
+    }
+
+    private Dictionary<string, Action> CreateMap()
+    {
+        return new()
         {
-            if (_currentViewModel != null)
-            {
-                _currentViewModel.ChangeViewModel -= OnChangeViewModel;
-                _currentViewModel.SignInSuccesful -= SignedIn;
-            }
-            SetProperty(ref _currentViewModel, value);
-            if (_currentViewModel != null)
-            {
-                _currentViewModel.ChangeViewModel += OnChangeViewModel;
-                _currentViewModel.SignInSuccesful += SignedIn;
-            }
+            { "LoginViewModel", () => CurrentViewModel = _loginFactory.Create() },
+            { "RegisterViewModel", () => CurrentViewModel = _registerFactory.Create() }
+        };
+    }
+
+    public void OnPopUpMessage(PopUpMessagePayload payload)
+    {
+        if (payload.Sender == CurrentViewModel)
+        {
+            _windowManager.ShowWindow<PopUpWindowViewModel>(x => x.Message = payload.Message, this);
         }
     }
 
-    public LoginWindowViewModel(LoginViewModel loginViewModel, IWindowManager windowManager)
-    {
-        CurrentViewModel = loginViewModel;
-        _windowManager = windowManager;
-    }
-
-    public void SignedIn(object? sender, User user)
+    public void OnSignedIn(User user)
     {
         _windowManager.ShowWindow<MainWindowViewModel>(x => x.User = user);
         _windowManager.CloseWindow(this);
     }
 
-    public void OnChangeViewModel(object? sender, ILoginViewModel newViewModel)
+    public void OnChangeViewModel(ChangeViewModelPayload payload)
     {
-        CurrentViewModel = newViewModel;
+        if (payload.Sender == CurrentViewModel && _changeViewModelMap.ContainsKey(payload.ViewModelName))
+        {
+            _changeViewModelMap[payload.ViewModelName]();
+        }
     }
 
     public void Dispose()
     {
-        if (_currentViewModel != null)
-        {
-            _currentViewModel.ChangeViewModel -= OnChangeViewModel;
-        }
+        _signedEvent.Unsubscribe(OnSignedIn);
+        _changeViewModelEvent.Unsubscribe(OnChangeViewModel);
+        _popUpMessageEvent.Unsubscribe(OnPopUpMessage);
     }
 }

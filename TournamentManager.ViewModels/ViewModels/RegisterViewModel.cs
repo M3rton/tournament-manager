@@ -1,17 +1,16 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using TournamentManager.Core.Entities;
-using TournamentManager.Core.Interfaces.Navigation;
+using TournamentManager.Core.Events;
 using TournamentManager.Core.Interfaces.Services;
-using TournamentManager.ViewModels.Interfaces;
 
 namespace TournamentManager.ViewModels.ViewModels
 {
-    public partial class RegisterViewModel : ObservableObject, ILoginViewModel
+    public partial class RegisterViewModel : ObservableObject
     {
-        private readonly IViewModelFactory<LoginViewModel> _loginFactory;
         private readonly IUsersService _usersService;
-        private readonly IWindowManager _windowManager;
+
+        private readonly ChangeViewModelEvent _changeViewModelEvent;
+        private readonly PopUpMessageEvent _popUpMessageEvent;
 
         [ObservableProperty]
         [NotifyCanExecuteChangedFor(nameof(RegisterCommand))]
@@ -21,14 +20,12 @@ namespace TournamentManager.ViewModels.ViewModels
         [NotifyCanExecuteChangedFor(nameof(RegisterCommand))]
         private string? _password;
 
-        public event EventHandler<User>? SignInSuccesful;
-
-        public RegisterViewModel(IViewModelFactory<LoginViewModel> loginFactory,
-            IUsersService usersService, IWindowManager windowManager)
+        public RegisterViewModel(IUsersService usersService, IEventAggregator eventAggregator)
         {
-            _loginFactory = loginFactory;
             _usersService = usersService;
-            _windowManager = windowManager;
+
+            _changeViewModelEvent = eventAggregator.GetEvent<ChangeViewModelEvent>();
+            _popUpMessageEvent = eventAggregator.GetEvent<PopUpMessageEvent>();
         }
 
         [RelayCommand(CanExecute = nameof(CanRegister))]
@@ -36,7 +33,7 @@ namespace TournamentManager.ViewModels.ViewModels
         {
             string message;
 
-            if (await _usersService.CanRegisterAsync(UserName!, Password!))
+            if (await _usersService.CanRegisterAsync(UserName!))
             {
                 await _usersService.RegisterAsync(UserName!, Password!);
                 message = "Successfully registered.";
@@ -49,7 +46,11 @@ namespace TournamentManager.ViewModels.ViewModels
             UserName = "";
             Password = "";
 
-            _windowManager.ShowWindow<PopUpWindowViewModel>(x => x.Message = message);
+            _popUpMessageEvent.Publish(new PopUpMessagePayload
+            {
+                Sender = this,
+                Message = message
+            });
         }
 
         private bool CanRegister()
@@ -57,12 +58,15 @@ namespace TournamentManager.ViewModels.ViewModels
             return !string.IsNullOrEmpty(UserName) && !string.IsNullOrEmpty(Password);
         }
 
-        public event EventHandler<ILoginViewModel>? ChangeViewModel;
 
         [RelayCommand]
         private void ChangeView()
         {
-            ChangeViewModel?.Invoke(this, _loginFactory.Create());
+            _changeViewModelEvent.Publish(new ChangeViewModelPayload
+            {
+                Sender = this,
+                ViewModelName = nameof(LoginViewModel)
+            });
         }
     }
 }

@@ -15,10 +15,11 @@ public static class ViewModelServiceCollectionExtensions
         services.AddFormFactory<RegisterViewModel>();
         services.AddFormFactory<PopUpWindowViewModel>();
         services.AddFormFactory<UpcomingTournamentsViewModel>();
-        services.AddFormFactory<MyTournamentsViewModel>();
+        services.AddFormFactory<MyTournamentViewModel>();
         services.AddFormFactory<MyAccountViewModel>();
         services.AddFormFactory<MyTeamViewModel>();
         services.AddFormFactory<CreateTeamViewModel>();
+        services.AddFormFactory<CreateTournamentViewModel>();
 
         return services;
     }

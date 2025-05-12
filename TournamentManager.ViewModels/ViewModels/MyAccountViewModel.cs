@@ -1,5 +1,9 @@
-﻿namespace TournamentManager.ViewModels.ViewModels;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
+using TournamentManager.Core.Entities;
 
-public class MyAccountViewModel : UserViewModel
+namespace TournamentManager.ViewModels.ViewModels;
+
+public class MyAccountViewModel : ObservableObject
 {
+    public User? User { get; set; }
 }

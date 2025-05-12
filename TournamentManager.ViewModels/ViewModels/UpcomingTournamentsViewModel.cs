@@ -2,6 +2,6 @@
 
 namespace TournamentManager.ViewModels.ViewModels;
 
-public class UpcomingTournamentsViewModel : UserViewModel
+public class UpcomingTournamentsViewModel : ObservableObject
 {
 }
