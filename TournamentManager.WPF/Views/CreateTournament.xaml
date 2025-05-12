@@ -1,0 +1,58 @@
+﻿<UserControl x:Class="TournamentManager.WPF.Views.CreateTournament"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:TournamentManager.WPF.Views"
+             mc:Ignorable="d" 
+             d:DesignHeight="800" d:DesignWidth="1600">
+
+    <UserControl.Resources>
+        <Style TargetType="{x:Type TextBlock}">
+            <Setter Property="Foreground" Value="Black"/>
+        </Style>
+    </UserControl.Resources>
+
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="1*"/>
+            <ColumnDefinition Width="8*"/>
+            <ColumnDefinition Width="1*"/>
+        </Grid.ColumnDefinitions>
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="1*"/>
+            <RowDefinition Height="4*"/>
+            <RowDefinition Height="1*"/>
+        </Grid.RowDefinitions>
+
+        <Label Grid.Row="0" Grid.ColumnSpan="3" FontSize="35" Foreground="White"
+               HorizontalAlignment="Center" VerticalAlignment="Center" Content="Create Tournament"/>
+
+        <DockPanel Grid.Column="1" Grid.Row="1">
+            <UniformGrid DockPanel.Dock="Top">
+                <DockPanel>
+                    <Label DockPanel.Dock="Top" Content="Tournament Name" FontSize="26" Margin="50,10,50,0" Foreground="White"/>
+                    <TextBox DockPanel.Dock="Bottom" Margin="50,0,50,20" VerticalContentAlignment="Center" Foreground="White"
+                             FontSize="26" Background="#FF464143" MaxLength="20" Text="{Binding TournamentName}"/>
+                </DockPanel>
+                <DockPanel DockPanel.Dock="Left">
+                    <Label DockPanel.Dock="Top" Content="Strategy" FontSize="26" Margin="50,10,50,0" Foreground="White"/>
+                    <ComboBox Margin="50,0,50,20" ItemsSource="{Binding Strategies}" FontSize="20" SelectedItem="{Binding SelectedStrategy}"/>
+                </DockPanel>
+                <DockPanel DockPanel.Dock="Left">
+                    <Label DockPanel.Dock="Top" Content="Maximum Teams" FontSize="26" Margin="50,10,50,0" Foreground="White"/>
+                    <ComboBox Margin="50,0,50,20" ItemsSource="{Binding MaxTeams}" FontSize="20" SelectedItem="{Binding SelectedMaxTeams}"/>
+                </DockPanel>
+            </UniformGrid>
+
+            <DockPanel DockPanel.Dock="Bottom" LastChildFill="False">
+                <Label DockPanel.Dock="Top" Margin="50,0,50,20" Content="Description" FontSize="26" Foreground="White"/>
+                <TextBox DockPanel.Dock="Top" Margin="50,0,50,20" VerticalContentAlignment="Top" MinHeight="100" Foreground="White"
+                         FontSize="26" Background="#FF464143" MaxLength="255" Text="{Binding TournamentDescription}"/>
+                <Button DockPanel.Dock="Top" MaxHeight="80" MaxWidth="240" Content="Create Tournament"
+                        FontSize="26" Background="#FF0664E2" Command="{Binding CreateTournamentCommand}"/>
+            </DockPanel>
+        </DockPanel>
+    </Grid>
+</UserControl>
