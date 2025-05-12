@@ -72,4 +72,13 @@ internal class TournamentsRepository : ITournamentsRepository
 
         await _db.SaveChangesAsync();
     }
+
+    public async Task SaveWinnerAsync(Tournament tournament, Team team)
+    {
+        _db.Tournaments.Attach(tournament);
+
+        tournament.Winner = team;
+
+        await _db.SaveChangesAsync();
+    }
 }

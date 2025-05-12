@@ -67,6 +67,10 @@ internal class UsersRepository : IUsersRepository
             await _db.Entry(user.Account.Tournament)
                 .Collection(t => t.Matches)
                 .LoadAsync();
+
+            await _db.Entry(user.Account.Tournament)
+                .Reference(t => t.Winner)
+                .LoadAsync();
         }
     }
 }
