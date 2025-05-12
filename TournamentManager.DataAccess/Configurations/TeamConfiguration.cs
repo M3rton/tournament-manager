@@ -18,8 +18,7 @@ internal class TeamConfiguration : IEntityTypeConfiguration<Team>
         builder.HasOne(t => t.TeamCaptain)
             .WithOne()
             .HasForeignKey<Team>("TeamCaptainId")
-            .OnDelete(DeleteBehavior.Restrict)
-            .IsRequired();
+            .OnDelete(DeleteBehavior.Restrict);
 
         builder.Property(p => p.Name)
             .IsRequired()

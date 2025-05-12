@@ -10,18 +10,21 @@ internal class TournamentConfiguration : IEntityTypeConfiguration<Tournament>
     {
         builder.HasKey(nameof(Tournament.TournamentId));
 
+        builder.HasOne(t => t.Owner)
+            .WithOne(p => p.Tournament)
+            .HasForeignKey<Tournament>("OwnerId")
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.HasMany(t => t.Teams)
+            .WithMany(tm => tm.Tournaments)
+            .UsingEntity(j => j.ToTable("TournamentTeams"));
+
         builder.Property(p => p.Name)
             .IsRequired()
             .HasMaxLength(40);
 
         builder.Property(p => p.Description)
             .HasMaxLength(255);
-
-        builder.Property(p => p.DateCreated)
-            .IsRequired();
-
-        builder.Property(p => p.DateStart)
-            .IsRequired();
 
         builder.Property(p => p.Strategy)
             .IsRequired();
