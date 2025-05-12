@@ -58,7 +58,7 @@
                                              FontSize="20" Margin="30" Background="#FF464143" Foreground="White"/>
                                     <TextBox Text="{Binding SecondTeamWins, UpdateSourceTrigger=PropertyChanged}"
                                              FontSize="20" Margin="30" Background="#FF464143" Foreground="White"/>
-                                    <Button Content="Save"
+                                    <Button Content="Save" Margin="30" Background="#FF0664E2"
                                             Command="{Binding DataContext.SaveMatchCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
                                             CommandParameter="{Binding}"/>
                                 </StackPanel>
