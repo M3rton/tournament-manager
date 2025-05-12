@@ -1,5 +1,4 @@
-﻿using System.Threading.Tasks;
-using TournamentManager.Core.Entities;
+﻿using TournamentManager.Core.Entities;
 using TournamentManager.Core.Enums;
 using TournamentManager.Core.Interfaces.Repositories;
 using TournamentManager.Core.Interfaces.Services;
@@ -64,25 +63,33 @@ internal class TournamentsService : ITournamentsService
         }
     }
 
-    public async Task GenerateBracketAsync(Tournament tournament)
+    public async Task SaveWinnerAsync(Tournament tournament, Team team)
+    {
+        if (tournament != null)
+        {
+            _tournamentsRepository.SaveWinnerAsync(tournament, team);
+        }
+    }
+
+    public async Task<IEnumerable<Match>> GenerateBracketAsync(Tournament tournament)
     {
         switch (tournament.Strategy)
         {
             case StrategyType.Spider:
-                GenerateSpiderBracketAsync(tournament);
-                break;
+                return GenerateSpiderBracketAsync(tournament);
             case StrategyType.Groups:
-                GenerateGroupsBracketAsync(tournament);
-                break;
+                return GenerateGroupsBracketAsync(tournament);
             default:
                 throw new ArgumentOutOfRangeException();
         }
     }
 
-    private void GenerateSpiderBracketAsync(Tournament tournament)
+    private IEnumerable<Match> GenerateSpiderBracketAsync(Tournament tournament)
     {
-        void CreateMatches(int roundSize, List<Team> teams, int currentRound)
+        IEnumerable<Match> CreateMatches(int roundSize, List<Team> teams, int currentRound)
         {
+            var newMatches = new List<Match>();
+
             for (int i = 0; i < roundSize; i++)
             {
                 Match match = new Match
@@ -97,7 +104,11 @@ internal class TournamentsService : ITournamentsService
 
                 _matchesRepository.SaveMatchAsync(match);
                 _tournamentsRepository.AddMatch(tournament, match);
+
+                newMatches.Add(match);
             }
+
+            return newMatches;
         }
 
         if (tournament.Matches.Count == 0)
@@ -106,7 +117,7 @@ internal class TournamentsService : ITournamentsService
 
             if (teamsCount < 2)
             {
-                return;
+                return Enumerable.Empty<Match>();
             }
 
             int bracketSize = 2;
@@ -115,7 +126,7 @@ internal class TournamentsService : ITournamentsService
                 bracketSize *= 2;
             }
 
-            CreateMatches(bracketSize / 2, tournament.Teams.ToList(), 1);
+            return CreateMatches(bracketSize / 2, tournament.Teams.ToList(), 1);
         }
         else
         {
@@ -127,7 +138,7 @@ internal class TournamentsService : ITournamentsService
             {
                 if (!match.IsFinished)
                 {
-                    return;
+                    return Enumerable.Empty<Match>();
                 }
 
                 if (match.Round == currentRound - 1)
@@ -138,14 +149,14 @@ internal class TournamentsService : ITournamentsService
 
             if (currentTeams.Count <= 1)
             {
-                return;
+                return Enumerable.Empty<Match>();
             }
 
-            CreateMatches(currentTeams.Count / 2, currentTeams, currentRound);
+            return CreateMatches(currentTeams.Count / 2, currentTeams, currentRound);
         }
     }
 
-    private void GenerateGroupsBracketAsync(Tournament tournament)
+    private IEnumerable<Match> GenerateGroupsBracketAsync(Tournament tournament)
     {
         throw new NotImplementedException();
     }
