@@ -3,6 +3,5 @@
 public enum StrategyType
 {
     Spider,
-    Groups,
-    RoundRobin
+    Groups
 }
