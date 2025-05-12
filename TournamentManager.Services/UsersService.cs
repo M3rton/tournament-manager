@@ -31,7 +31,7 @@ internal class UsersService : IUsersService
 
     public async Task RegisterAsync(string userName, string password)
     {
-        if (await CanRegisterAsync(userName, password))
+        if (await CanRegisterAsync(userName))
         {
             string hashedPassword = passwordHasher.HashPassword(userName, password);
 
@@ -43,7 +43,7 @@ internal class UsersService : IUsersService
 
     }
 
-    public async Task<bool> CanRegisterAsync(string userName, string password)
+    public async Task<bool> CanRegisterAsync(string userName)
     {
         if (await _usersRepository.GetUserByNameAsync(userName) != null)
         {
@@ -60,5 +60,10 @@ internal class UsersService : IUsersService
     public async Task LoadUserTeam(User user)
     {
         await _usersRepository.LoadUserTeam(user);
+    }
+
+    public async Task LoadUserTournament(User user)
+    {
+        await _usersRepository.LoadUserTournament(user);
     }
 }
