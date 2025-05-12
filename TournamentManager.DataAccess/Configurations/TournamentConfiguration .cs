@@ -19,6 +19,16 @@ internal class TournamentConfiguration : IEntityTypeConfiguration<Tournament>
             .WithMany(tm => tm.Tournaments)
             .UsingEntity(j => j.ToTable("TournamentTeams"));
 
+        builder.HasOne(t => t.Winner)
+            .WithOne()
+            .HasForeignKey<Team>("TeamWinnerId")
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.HasMany(t => t.Matches)
+            .WithOne(m => m.Tournament)
+            .HasForeignKey("MatchId")
+            .OnDelete(DeleteBehavior.Restrict);
+
         builder.Property(p => p.Name)
             .IsRequired()
             .HasMaxLength(40);

@@ -25,6 +25,11 @@ internal class MatchConfiguration : IEntityTypeConfiguration<Match>
             .HasForeignKey("WinnerTeamId")
             .OnDelete(DeleteBehavior.Restrict);
 
+        builder.HasOne(m => m.Tournament)
+            .WithMany(t => t.Matches)
+            .HasForeignKey("TournamentId")
+            .OnDelete(DeleteBehavior.Restrict);
+
         builder.Property(m => m.FirstTeamWins)
             .HasDefaultValue(0);
 
