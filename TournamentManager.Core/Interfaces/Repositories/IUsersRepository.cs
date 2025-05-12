@@ -11,4 +11,6 @@ public interface IUsersRepository
     Task LoadUserAccount(User user);
 
     Task LoadUserTeam(User user);
+
+    Task LoadUserTournament(User user);
 }

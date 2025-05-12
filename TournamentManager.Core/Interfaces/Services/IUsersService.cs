@@ -8,9 +8,11 @@ public interface IUsersService
 
     Task RegisterAsync(string userName, string password);
 
-    Task<bool> CanRegisterAsync(string userName, string password);
+    Task<bool> CanRegisterAsync(string userName);
 
     Task LoadUserAccount(User user);
 
     Task LoadUserTeam(User user);
+
+    Task LoadUserTournament(User user);
 }

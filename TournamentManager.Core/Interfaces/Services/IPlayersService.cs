@@ -4,5 +4,7 @@ namespace TournamentManager.Core.Interfaces.Services;
 
 public interface IPlayersService
 {
-    Task<Player?> GetPlayersByTeam(Team team);
+    Task<Player?> GetPlayerByIdAsync(int playerId);
+
+    Task LeaveTeamAsync(Player player);
 }

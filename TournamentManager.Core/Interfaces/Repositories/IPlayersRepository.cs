@@ -5,4 +5,6 @@ namespace TournamentManager.Core.Interfaces.Repositories;
 public interface IPlayersRepository
 {
     Task<Player?> GetPlayerByName(string playerName);
+
+    Task<Player?> GetPlayerById(int playerId);
 }
