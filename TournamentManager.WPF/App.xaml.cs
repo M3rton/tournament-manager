@@ -29,6 +29,7 @@ public partial class App : Application
 
         services.AddSingleton(CreateViewModelToViewMap());
         services.AddSingleton<IWindowManager, WindowManager>();
+        services.AddSingleton<IEventAggregator, EventAggregator>();
     }
 
     protected override void OnStartup(StartupEventArgs e)

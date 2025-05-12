@@ -16,7 +16,7 @@ internal class WindowManager : IWindowManager
         _viewModelToViewMap = viewModelToViewMap;
     }
 
-    public void ShowWindow<TViewModel>(Action<TViewModel> setup) where TViewModel : class
+    public void ShowWindow<TViewModel>(Action<TViewModel> setup, object? owner = null) where TViewModel : class
     {
         var viewModel = _serviceProvider.GetRequiredService<TViewModel>();
 
@@ -30,10 +30,20 @@ internal class WindowManager : IWindowManager
                 return;
             }
 
-            var window = (Window)Activator.CreateInstance(viewType)!;
+            var window = Activator.CreateInstance(viewType) as Window;
+            if (window == null)
+            {
+                return;
+            } 
+
             window.DataContext = viewModel;
             _openWindows[viewModel] = window;
             window.Show();
+
+            if (owner != null)
+            {
+                window.Owner = _openWindows[owner];
+            }
         }
     }
 

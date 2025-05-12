@@ -16,20 +16,20 @@
         <TextBlock Grid.Row="0" Style="{x:Null}" Foreground="White" FontSize="30" HorizontalAlignment="Center" VerticalAlignment="Center">
             <TextBlock.Text>
                 <MultiBinding StringFormat="{}{0} - {1}">
-                    <Binding Path="Team.Name"/>
-                    <Binding Path="Team.Tag"/>
+                    <Binding Path="Player.Team.Name"/>
+                    <Binding Path="Player.Team.Tag"/>
                 </MultiBinding>
             </TextBlock.Text>
         </TextBlock>
 
-        <ItemsControl Grid.Row="1" ItemsSource="{Binding Team.Players}">
+        <ItemsControl Grid.Row="1" ItemsSource="{Binding Player.Team.Players}">
             <ItemsControl.ItemTemplate>
                 <DataTemplate>
                     <Border CornerRadius="6" BorderBrush="Gray" BorderThickness="2">
                         <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="{Binding Name}" FontSize="20" Margin="30"/>
-                            <TextBlock Text="{Binding MainRole}" FontSize="20" Margin="30"/>
-                            <TextBlock Text="{Binding SecondaryRole}" FontSize="20" Margin="30"/>
+                            <TextBlock Text="{Binding Name}" FontSize="20" Margin="30" Foreground="White"/>
+                            <TextBlock Text="{Binding MainRole}" FontSize="20" Margin="30" Foreground="White"/>
+                            <TextBlock Text="{Binding SecondaryRole}" FontSize="20" Margin="30" Foreground="White"/>
                         </StackPanel>
                     </Border>
                 </DataTemplate>
@@ -42,12 +42,19 @@
                 <ColumnDefinition/>
             </Grid.ColumnDefinitions>
 
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                <TextBox MinWidth="100" Background="#FF464143" Margin="20,20,10,20" FontSize="20" Text="{Binding PlayerName}" />
-                <Button Margin="10,20,20,20" Padding="10,0" FontSize="15" Content="Add Player" Background="#FF0664E2" Command="{Binding AddPlayerCommand}"/>
-            </StackPanel>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
 
-            <Button Grid.Column="1" Margin="150,20" Content="Leave Team" FontSize="15" Background="#FF0664E2"/>
+                <TextBox Grid.Column="0" Margin="60,20,10,20" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Foreground="White"
+                         Background="#FF464143" FontSize="26" VerticalContentAlignment="Center" Text="{Binding PlayerName, UpdateSourceTrigger=PropertyChanged}" />
+                <Button Grid.Column="1" Margin="10,20,60,20" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                        FontSize="15" Content="Add Player" Background="#FF0664E2" Command="{Binding AddPlayerCommand}"/>
+            </Grid>
+
+            <Button Grid.Column="1" Margin="150,20" Content="Leave Team" FontSize="15" Background="#FF0664E2" Command="{Binding LeaveTeamCommand}"/>
         </Grid>
     </Grid>
 </UserControl>

@@ -23,27 +23,27 @@
             <RowDefinition Height="2.6*"/>
         </Grid.RowDefinitions>
 
-        <Label Grid.Row="0" Grid.ColumnSpan="3" FontSize="35" 
+        <Label Grid.Row="0" Grid.ColumnSpan="3" FontSize="35" Foreground="White"
                HorizontalAlignment="Center" VerticalAlignment="Center" Content="Tournament Manager"/>
 
         <DockPanel Grid.Column="1" Grid.Row="1" >
-            <Label DockPanel.Dock="Top" Content="Sign In With User Name"/>
+            <Label DockPanel.Dock="Top" Content="Sign In With User Name" Foreground="White"/>
 
-            <TextBox Margin="0,0,0,15" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" VerticalContentAlignment="Center"
-                     FontSize="16" Background="#FF464143" Text="{Binding UserName}"/>
+            <TextBox Margin="0,0,0,15" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" VerticalContentAlignment="Center" Foreground="White"
+                     FontSize="16" Background="#FF464143" MaxLength="20" Text="{Binding UserName, UpdateSourceTrigger=PropertyChanged}"/>
         </DockPanel>
 
         <DockPanel Grid.Column="1" Grid.Row="2">
-            <Label DockPanel.Dock="Top" Content="Password"/>
+            <Label DockPanel.Dock="Top" Content="Password" Foreground="White"/>
 
-            <TextBox Margin="0,0,0,15" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" VerticalContentAlignment="Center"
-                     FontSize="16" Background="#FF464143" Text="{Binding Password}"/>
+            <TextBox Margin="0,0,0,15" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" VerticalContentAlignment="Center" Foreground="White"
+                     FontSize="16" Background="#FF464143" Text="{Binding Password, UpdateSourceTrigger=PropertyChanged}"/>
         </DockPanel>
 
         <Button  Grid.Column="1" Grid.Row="3" Margin="50,25,50,10" Content="Sign In" Background="#FF0664E2" Command="{Binding SignInCommand}"/>
 
         <DockPanel Grid.Column="1" Grid.Row="4" LastChildFill="True" >
-            <Label DockPanel.Dock="Top" FontSize ="12" VerticalAlignment="Center" HorizontalAlignment="Center" Content="Don't have a account?"/>
+            <Label DockPanel.Dock="Top" FontSize ="12" VerticalAlignment="Center" HorizontalAlignment="Center" Content="Don't have a account?" Foreground="White"/>
 
             <TextBlock Text="Create Account" TextDecorations="Underline" FontSize="20"
                        VerticalAlignment="Center" HorizontalAlignment="Center" Padding="0,0,0,20">

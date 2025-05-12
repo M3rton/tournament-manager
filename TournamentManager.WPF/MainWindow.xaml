@@ -15,8 +15,12 @@
             <views:UpcomingTournaments/>
         </DataTemplate>
 
-        <DataTemplate DataType="{x:Type viewsModels:MyTournamentsViewModel}">
-            <views:MyTournaments/>
+        <DataTemplate DataType="{x:Type viewsModels:MyTournamentViewModel}">
+            <views:MyTournament/>
+        </DataTemplate>
+
+        <DataTemplate DataType="{x:Type viewsModels:CreateTournamentViewModel}">
+            <views:CreateTournament/>
         </DataTemplate>
 
         <DataTemplate DataType="{x:Type viewsModels:MyTeamViewModel}">
@@ -82,12 +86,17 @@
                 </i:Interaction.Triggers>
             </TextBlock>
 
-            <TextBlock Text="My Tournaments" FontSize="50" Grid.Column="1" TextWrapping="Wrap"
+            <TextBlock Text="My Tournament" FontSize="50" Grid.Column="1" TextWrapping="Wrap"
                        VerticalAlignment="Center" HorizontalAlignment="Center" Margin="0,0,0,5">
                 <TextBlock.Style>
                     <Style TargetType="TextBlock" BasedOn="{StaticResource {x:Type TextBlock}}">
                         <Style.Triggers>
-                            <DataTrigger Binding="{Binding CurrentViewModelType}" Value="{x:Type viewsModels:MyTournamentsViewModel}">
+                            <DataTrigger Binding="{Binding CurrentViewModelType}" Value="{x:Type viewsModels:MyTournamentViewModel}">
+                                <Setter Property="Foreground" Value="#FF0664E2" />
+                                <Setter Property="TextDecorations" Value="Underline"/>
+                            </DataTrigger>
+
+                            <DataTrigger Binding="{Binding CurrentViewModelType}" Value="{x:Type viewsModels:CreateTournamentViewModel}">
                                 <Setter Property="Foreground" Value="#FF0664E2" />
                                 <Setter Property="TextDecorations" Value="Underline"/>
                             </DataTrigger>
@@ -97,7 +106,7 @@
     
                 <i:Interaction.Triggers>
                     <i:EventTrigger EventName="MouseLeftButtonUp">
-                        <i:InvokeCommandAction Command="{Binding OpenMyTournamentsCommand}"/>
+                        <i:InvokeCommandAction Command="{Binding OpenMyTournamentCommand}"/>
                     </i:EventTrigger>
                 </i:Interaction.Triggers>
             </TextBlock>
