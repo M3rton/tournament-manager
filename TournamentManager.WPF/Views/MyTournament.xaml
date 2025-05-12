@@ -19,8 +19,20 @@
             <RowDefinition Height="2.5*"/>
         </Grid.RowDefinitions>
 
-        <TextBlock Grid.Row="0" Grid.ColumnSpan="3" FontSize="35" Foreground="White"
-               HorizontalAlignment="Center" VerticalAlignment="Center" Text="{Binding Player.Tournament.Name}"/>
+        <Grid Grid.Column="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <TextBlock FontSize="35" Foreground="White" HorizontalAlignment="Center"
+                       VerticalAlignment="Center" Text="{Binding Player.Tournament.Name}"/>
+            <DockPanel Grid.Column="1" HorizontalAlignment="Center">
+                <TextBlock DockPanel.Dock="Left" Grid.Column="1" FontSize="35" Foreground="White"
+                           Text="Winner: " VerticalAlignment="Center"/>
+                <TextBlock DockPanel.Dock="Right" Grid.Column="1" FontSize="35" Foreground="White"
+                           Text="{Binding Winner.Name}" VerticalAlignment="Center"/>
+            </DockPanel>
+        </Grid>
 
         <Button Grid.Column="1" Grid.Row="1" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" MaxWidth="200" MaxHeight="60"
                 Content="Generate Matches" Background="#FF0664E2" Command="{Binding GenerateBracketCommand}"/>
@@ -47,18 +59,18 @@
             </ScrollViewer>
 
             <ScrollViewer Grid.Column="1" VerticalScrollBarVisibility="Auto">
-                <ItemsControl ItemsSource="{Binding Player.Tournament.Matches}">
+                <ItemsControl ItemsSource="{Binding CurrentMatches}">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
                             <Border CornerRadius="6" BorderBrush="Gray" BorderThickness="2">
                                 <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="{Binding FirstTeam.Name}" FontSize="20" Margin="30" Foreground="White"/>
-                                    <TextBlock Text="{Binding SecondTeam.Name}" FontSize="20" Margin="30" Foreground="White"/>
+                                    <TextBlock Text="{Binding FirstTeam.Name}" FontSize="20" Margin="10" Foreground="White"/>
+                                    <TextBlock Text="{Binding SecondTeam.Name}" FontSize="20" Margin="10" Foreground="White"/>
                                     <TextBox Text="{Binding FirstTeamWins, UpdateSourceTrigger=PropertyChanged}"
-                                             FontSize="20" Margin="30" Background="#FF464143" Foreground="White"/>
+                                             FontSize="20" Margin="10" Background="#FF464143" Foreground="White"/>
                                     <TextBox Text="{Binding SecondTeamWins, UpdateSourceTrigger=PropertyChanged}"
-                                             FontSize="20" Margin="30" Background="#FF464143" Foreground="White"/>
-                                    <Button Content="Save" Margin="30" Background="#FF0664E2"
+                                             FontSize="20" Margin="10" Background="#FF464143" Foreground="White"/>
+                                    <Button Content="Save" Margin="10" Background="#FF0664E2"
                                             Command="{Binding DataContext.SaveMatchCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
                                             CommandParameter="{Binding}"/>
                                 </StackPanel>
@@ -76,15 +88,15 @@
                 <ColumnDefinition Width="2*"/>
             </Grid.ColumnDefinitions>
 
-            <Button  Grid.Column="0" Grid.Row="3" Margin="5,5" Content="Export Tournament" MaxWidth="200" MaxHeight="60"
-                     Background="#FF0664E2" Command="{Binding ExportTournamentCommand}"/>
+            <Button Visibility="Hidden" Grid.Column="0" Grid.Row="3" Margin="5,5" Content="Export Tournament" MaxWidth="200" MaxHeight="60"
+                    Background="#FF0664E2" Command="{Binding ExportTournamentCommand}"/>
 
             <DockPanel Grid.Column="1" LastChildFill="True">
                 <TextBox DockPanel.Dock="Top" Margin="5" MaxWidth="200" MaxHeight="60" FontSize="26" Background="#FF464143" Text="{Binding TeamName, UpdateSourceTrigger=PropertyChanged}" Foreground="White"/>
                 <Button DockPanel.Dock="Top" Margin="5" MaxWidth="200" MaxHeight="60" Content="Add Team" Background="#FF0664E2" Command="{Binding AddTeamCommand}"/>
             </DockPanel>
 
-            <Button  Grid.Column="2" Grid.Row="3" Margin="5" MaxWidth="200" MaxHeight="60" Content="Export Bracket" Background="#FF0664E2" Command="{Binding ExportBracketCommand}"/>
+            <Button Visibility="Hidden" Grid.Column="2" Grid.Row="3" Margin="5" MaxWidth="200" MaxHeight="60" Content="Export Bracket" Background="#FF0664E2" Command="{Binding ExportBracketCommand}"/>
 
         </Grid>
     </Grid>

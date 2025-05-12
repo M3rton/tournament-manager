@@ -8,7 +8,7 @@
         xmlns:views="clr-namespace:TournamentManager.WPF.Views"
         xmlns:viewsModels="clr-namespace:TournamentManager.ViewModels.ViewModels;assembly=TournamentManager.ViewModels"
         mc:Ignorable="d"
-        Title="Tournament Manager" Height="1080" Width="1920" Background="#FF272525">
+        Title="Tournament Manager" Height="720" Width="1280" Background="#FF272525">
 
     <Window.Resources>
         <DataTemplate DataType="{x:Type viewsModels:UpcomingTournamentsViewModel}">
@@ -66,7 +66,7 @@
                 <ColumnDefinition/>
             </Grid.ColumnDefinitions>
 
-            <TextBlock Text="Upcoming Tournaments" FontSize="50" Grid.Column="0" TextWrapping="Wrap"
+            <TextBlock Text="Upcoming Tournaments" FontSize="30" Grid.Column="0" TextWrapping="Wrap"
                        VerticalAlignment="Center" HorizontalAlignment="Center" Margin="0,0,0,5">
                 <TextBlock.Style>
                     <Style TargetType="TextBlock" BasedOn="{StaticResource {x:Type TextBlock}}">
@@ -86,7 +86,7 @@
                 </i:Interaction.Triggers>
             </TextBlock>
 
-            <TextBlock Text="My Tournament" FontSize="50" Grid.Column="1" TextWrapping="Wrap"
+            <TextBlock Text="My Tournament" FontSize="30" Grid.Column="1" TextWrapping="Wrap"
                        VerticalAlignment="Center" HorizontalAlignment="Center" Margin="0,0,0,5">
                 <TextBlock.Style>
                     <Style TargetType="TextBlock" BasedOn="{StaticResource {x:Type TextBlock}}">
@@ -111,7 +111,7 @@
                 </i:Interaction.Triggers>
             </TextBlock>
 
-            <TextBlock Text="My Team" FontSize="50" Grid.Column="2" TextWrapping="Wrap"
+            <TextBlock Text="My Team" FontSize="30" Grid.Column="2" TextWrapping="Wrap"
                        VerticalAlignment="Center" HorizontalAlignment="Center" Margin="0,0,0,5">
                 <TextBlock.Style>
                     <Style TargetType="TextBlock" BasedOn="{StaticResource {x:Type TextBlock}}">
@@ -136,7 +136,7 @@
                 </i:Interaction.Triggers>
             </TextBlock>
 
-            <TextBlock Text="My Account" FontSize="50" Grid.Column="3" TextWrapping="Wrap"
+            <TextBlock Text="My Account" FontSize="30" Grid.Column="3" TextWrapping="Wrap"
                        VerticalAlignment="Center" HorizontalAlignment="Center" Margin="0,0,0,5">
                 <TextBlock.Style>
                     <Style TargetType="TextBlock" BasedOn="{StaticResource {x:Type TextBlock}}">
