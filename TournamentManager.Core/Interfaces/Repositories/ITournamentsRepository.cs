@@ -13,4 +13,6 @@ public interface ITournamentsRepository
     Task AddTeam(Tournament tournament, Team team);
 
     Task AddMatch(Tournament tournament, Match match);
+
+    Task SaveWinnerAsync(Tournament tournament, Team team);
 }

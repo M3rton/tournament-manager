@@ -18,5 +18,7 @@ public interface ITournamentsService
 
     Task AddTeamAsync(Tournament tournament, string teamName);
 
-    Task GenerateBracketAsync(Tournament tournament);
+    Task SaveWinnerAsync(Tournament tournament, Team team);
+
+    Task<IEnumerable<Match>> GenerateBracketAsync(Tournament tournament);
 }
