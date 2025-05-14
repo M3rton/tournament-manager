@@ -34,12 +34,22 @@ public partial class CreateTeamViewModel : ObservableObject
     [RelayCommand(CanExecute = nameof(CanCreateTeam))]
     private async Task CreateTeam()
     {
+        if (Player == null || Player.Team != null)
+        {
+            return;
+        }
+
+        if (TeamName == null || Tag == null)
+        {
+            return;
+        }
+
         string message;
         bool teamCreated = false;
 
-        if (Player != null && await _teamsService.CanCreateTeamAsync(TeamName!))
+        if (await _teamsService.CanCreateTeamAsync(TeamName))
         {
-            await _teamsService.CreateTeamAsync(TeamName!, Tag!, Player);
+            await _teamsService.CreateTeamAsync(TeamName, Tag, Player);
             message = "Successfully created new team.";
 
             teamCreated = true;
@@ -63,9 +73,6 @@ public partial class CreateTeamViewModel : ObservableObject
                 ViewModelName = nameof(MyTeamViewModel)
             });
         }
-
-        TeamName = "";
-        Tag = "";
     }
 
     private bool CanCreateTeam()

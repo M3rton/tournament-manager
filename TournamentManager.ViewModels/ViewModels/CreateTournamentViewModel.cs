@@ -55,15 +55,25 @@ public partial class CreateTournamentViewModel : ObservableObject
     [RelayCommand (CanExecute =nameof(CanCreateTournament))]
     private async Task CreateTournament()
     {
+        if (Player == null || Player.Tournament != null)
+        {
+            return;
+        }
+
+        if (TournamentName == null || SelectedStrategy == null || SelectedMaxTeams == null)
+        {
+            return;
+        }
+
         string message;
         bool teamCreated = false;
 
-        if (await _tournamentsService.CanCreateTournamentAsync(TournamentName!))
+        if (await _tournamentsService.CanCreateTournamentAsync(TournamentName))
         {
             await _tournamentsService.CreateTournamentAsync(
-                TournamentName!,
-                SelectedStrategy,
-                SelectedMaxTeams,
+                TournamentName,
+                (StrategyType) SelectedStrategy,
+                (int) SelectedMaxTeams,
                 TournamentDescription,
                 Player);
 

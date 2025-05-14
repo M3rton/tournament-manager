@@ -68,9 +68,9 @@ public partial class LoginWindowViewModel : ObservableObject, IDisposable
 
     public void OnChangeViewModel(ChangeViewModelPayload payload)
     {
-        if (payload.Sender == CurrentViewModel && _changeViewModelMap.ContainsKey(payload.ViewModelName))
+        if (payload.Sender == CurrentViewModel && _changeViewModelMap.TryGetValue(payload.ViewModelName, out var action))
         {
-            _changeViewModelMap[payload.ViewModelName]();
+            action();
         }
     }
 

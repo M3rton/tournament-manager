@@ -3,7 +3,6 @@ using CommunityToolkit.Mvvm.Input;
 using TournamentManager.Core.Entities;
 using TournamentManager.Core.Events;
 using TournamentManager.Core.Interfaces.Navigation;
-using TournamentManager.Core.Interfaces.Services;
 using TournamentManager.ViewModels.Interfaces;
 
 namespace TournamentManager.ViewModels.ViewModels;
@@ -18,7 +17,6 @@ public partial class MainWindowViewModel : ObservableObject, IDisposable
     private readonly IViewModelFactory<MyTeamViewModel> _myTeam;
     private readonly IViewModelFactory<CreateTeamViewModel> _createTeam;
     private readonly IViewModelFactory<MyAccountViewModel> _myAccount;
-    private readonly IUsersService _usersService;
     private readonly IWindowManager _windowManager;
 
     private readonly ChangeViewModelEvent _changeViewModelEvent;
@@ -30,7 +28,7 @@ public partial class MainWindowViewModel : ObservableObject, IDisposable
     [ObservableProperty]
     private ObservableObject? _currentViewModel;
 
-    private readonly Dictionary<string, Func<Task>> _changeViewModelMap;
+    private readonly Dictionary<string, Action> _changeViewModelMap;
 
     public MainWindowViewModel(
         IViewModelFactory<UpcomingTournamentsViewModel> upcommingTournaments,
@@ -39,7 +37,6 @@ public partial class MainWindowViewModel : ObservableObject, IDisposable
         IViewModelFactory<MyTeamViewModel> myTeam,
         IViewModelFactory<CreateTeamViewModel> createTeam,
         IViewModelFactory<MyAccountViewModel> myAccount,
-        IUsersService userService,
         IWindowManager windowManager,
         IEventAggregator eventAggregator
         )
@@ -50,7 +47,6 @@ public partial class MainWindowViewModel : ObservableObject, IDisposable
         _myTeam = myTeam;
         _createTeam = createTeam;
         _myAccount = myAccount;
-        _usersService = userService;
         _windowManager = windowManager;
 
         _changeViewModelEvent = eventAggregator.GetEvent<ChangeViewModelEvent>();
@@ -62,7 +58,7 @@ public partial class MainWindowViewModel : ObservableObject, IDisposable
         _changeViewModelMap = CreateMap();
     }
 
-    private Dictionary<string, Func<Task>> CreateMap()
+    private Dictionary<string, Action> CreateMap()
     {
         return new()
         {
@@ -85,14 +81,14 @@ public partial class MainWindowViewModel : ObservableObject, IDisposable
 
     public async Task OnChangeViewModel(ChangeViewModelPayload payload)
     {
-        if (payload.Sender == CurrentViewModel && _changeViewModelMap.TryGetValue(payload.ViewModelName, out var func))
+        if (payload.Sender == CurrentViewModel && _changeViewModelMap.TryGetValue(payload.ViewModelName, out var action))
         {
-            await func.Invoke();
+            action();
         }
     }
 
     [RelayCommand]
-    private async Task OpenUpcommingTournaments()
+    private void OpenUpcommingTournaments()
     {
         var newViewModel = _upcommingTournaments.Create();
 
@@ -101,10 +97,8 @@ public partial class MainWindowViewModel : ObservableObject, IDisposable
     }
 
     [RelayCommand]
-    private async Task OpenMyTournament()
+    private void OpenMyTournament()
     {
-        await _usersService.LoadUserTournament(User!);
-
         ObservableObject newViewModel;
 
         if (User!.Account.Tournament == null)
@@ -125,10 +119,8 @@ public partial class MainWindowViewModel : ObservableObject, IDisposable
     }
 
     [RelayCommand]
-    private async Task OpenMyTeam()
+    private void OpenMyTeam()
     {
-        await _usersService.LoadUserTeam(User!);
-
         ObservableObject newViewModel;
 
         if (User!.Account.Team == null)
@@ -149,9 +141,8 @@ public partial class MainWindowViewModel : ObservableObject, IDisposable
     }
 
     [RelayCommand]
-    private async Task OpenMyAccount()
+    private void OpenMyAccount()
     {
-        await _usersService.LoadUserAccount(User!);
         var newViewModel = _myAccount.Create();
 
         newViewModel.User = User;

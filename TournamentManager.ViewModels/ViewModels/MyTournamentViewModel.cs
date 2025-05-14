@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.Input;
 using System.Collections.ObjectModel;
 using TournamentManager.Core.Entities;
 using TournamentManager.Core.Interfaces.Services;
+using TournamentManager.Core.Options;
 
 namespace TournamentManager.ViewModels.ViewModels;
 
@@ -29,20 +30,22 @@ public partial class MyTournamentViewModel : ObservableObject
     public ObservableCollection<Match> CurrentMatches { get; } = new ObservableCollection<Match>();
 
     private readonly ITournamentsService _tournamentsService;
+    private readonly IMatchesService _matchesService;
 
     [ObservableProperty]
     [NotifyCanExecuteChangedFor(nameof(AddTeamCommand))]
     private string? _teamName;
 
-    public MyTournamentViewModel(ITournamentsService tournamentsService)
+    public MyTournamentViewModel(ITournamentsService tournamentsService, IMatchesService matchesService)
     {
         _tournamentsService = tournamentsService;
+        _matchesService = matchesService;
     }
 
     [RelayCommand]
     private async Task GenerateBracket()
     {
-        if (Player!.Tournament == null || Player != Player.Tournament.Owner)
+        if (Player == null || Player.Tournament == null || Player != Player.Tournament.Owner)
         {
             return;
         }
@@ -61,17 +64,15 @@ public partial class MyTournamentViewModel : ObservableObject
         {
             return;
         }
-
-        if (match.FirstTeamWins > match.SecondTeamWins)
+        else if (match.FirstTeamWins > match.SecondTeamWins || match.SecondTeam == null)
         {
-            match.WinnerTeam = match.FirstTeam;
+            await _matchesService.SaveWinnerAsync(match, match.FirstTeam);
         }
         else
         {
-            match.WinnerTeam = match.SecondTeam;
+            await _matchesService.SaveWinnerAsync(match, match.SecondTeam);
         }
 
-        match.IsFinished = true;
         CurrentMatches.Remove(match);
         CurrentMatches.AddRange(await _tournamentsService.GenerateBracketAsync(Player.Tournament));
 
@@ -93,7 +94,12 @@ public partial class MyTournamentViewModel : ObservableObject
     [RelayCommand(CanExecute = nameof(CanAddTeam))]
     private async Task AddTeam()
     {
-        if (Player!.Tournament == null || Player != Player.Tournament.Owner || Player.Tournament.Matches.Count != 0)
+        if (Player == null || Player.Tournament == null)
+        {
+            return;
+        }
+
+        if (Player != Player.Tournament.Owner || Player.Tournament.Matches.Count >= Player.Tournament.MaxTeams)
         {
             return;
         }
@@ -109,6 +115,6 @@ public partial class MyTournamentViewModel : ObservableObject
     [RelayCommand]
     private void ExportBracket()
     {
-
+        _tournamentsService.ExportBracketAsImageAsync(Player.Tournament, new BracketExportAsImageOptions());
     }
 }
