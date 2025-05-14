@@ -34,7 +34,8 @@ internal class TournamentConfiguration : IEntityTypeConfiguration<Tournament>
             .HasMaxLength(40);
 
         builder.Property(p => p.Description)
-            .HasMaxLength(255);
+            .HasMaxLength(255)
+            .HasDefaultValue("");
 
         builder.Property(p => p.Strategy)
             .IsRequired();
