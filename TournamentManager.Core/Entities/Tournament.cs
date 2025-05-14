@@ -6,11 +6,11 @@ public class Tournament
 {
     public int TournamentId { get; set; }
     public string Name { get; set; }
-    public Player Owner { get; set; }
+    public virtual Player Owner { get; set; }
     public string? Description { get; set; }
     public StrategyType Strategy {  get; set; }
     public int MaxTeams { get; set; }
-    public Team? Winner { get; set; }
-    public ObservableCollection<Team> Teams { get; set; }
-    public ObservableCollection<Match> Matches { get; set; }
+    public virtual Team? Winner { get; set; }
+    public virtual ObservableCollection<Team> Teams { get; set; }
+    public virtual ObservableCollection<Match> Matches { get; set; }
 }
