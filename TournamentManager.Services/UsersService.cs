@@ -7,18 +7,18 @@ namespace TournamentManager.Services;
 
 internal class UsersService : IUsersService
 {
-    private readonly IUsersRepository _usersRepository;
+    private readonly IUnitOfWork _unitOfWork;
     private readonly PasswordHasher<string> passwordHasher;
 
-    public UsersService(IUsersRepository usersRepository)
+    public UsersService(IUnitOfWork unitOfWork)
     {
-        _usersRepository = usersRepository;
+        _unitOfWork = unitOfWork;
         passwordHasher = new PasswordHasher<string>();
     }
 
     public async Task<User?> LoginAsync(string userName, string password)
     {
-        User? user = await _usersRepository.GetUserByNameAsync(userName);
+        User? user = (await _unitOfWork.UsersRepository.GetAsync(u => u.Name == userName)).FirstOrDefault();
 
         if (user == null || 
             passwordHasher.VerifyHashedPassword(userName, user.HashedPassword, password) != PasswordVerificationResult.Success)
@@ -38,32 +38,15 @@ internal class UsersService : IUsersService
             Player player = new Player { Name = userName };
             User user = new User { Name = userName, HashedPassword = hashedPassword, Account = player };
 
-            await _usersRepository.SaveUserAsync(user);
-        }
+            await _unitOfWork.PlayersRepository.AddAsync(player);
+            await _unitOfWork.UsersRepository.AddAsync(user);
 
+            await _unitOfWork.SaveAsync();
+        }
     }
 
     public async Task<bool> CanRegisterAsync(string userName)
     {
-        if (await _usersRepository.GetUserByNameAsync(userName) != null)
-        {
-            return false;
-        }
-        return true;
-    }
-
-    public async Task LoadUserAccount(User user)
-    {
-        await _usersRepository.LoadUserAccount(user);
-    }
-
-    public async Task LoadUserTeam(User user)
-    {
-        await _usersRepository.LoadUserTeam(user);
-    }
-
-    public async Task LoadUserTournament(User user)
-    {
-        await _usersRepository.LoadUserTournament(user);
+        return (await _unitOfWork.UsersRepository.GetAsync(u => u.Name == userName)).FirstOrDefault() == null;
     }
 }

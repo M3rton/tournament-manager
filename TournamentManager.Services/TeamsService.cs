@@ -7,17 +7,20 @@ namespace TournamentManager.Services;
 
 internal class TeamsService : ITeamsService
 {
-    private readonly ITeamsRepository _teamsRepository;
-    private readonly IPlayersRepository _playersRepository;
+    private readonly IUnitOfWork _unitOfWork;
 
-    public TeamsService(ITeamsRepository teamsRepository, IPlayersRepository playersRepository)
+    public TeamsService(IUnitOfWork unitOfWork)
     {
-        _teamsRepository = teamsRepository;
-        _playersRepository = playersRepository;
+        _unitOfWork = unitOfWork;
     }
 
     public async Task CreateTeamAsync(string teamName, string tag, Player player)
     {
+        if (player.Team != null)
+        {
+            return;
+        }
+
         if (await CanCreateTeamAsync(teamName))
         {
             var newTeam = new Team
@@ -25,35 +28,37 @@ internal class TeamsService : ITeamsService
                 Name = teamName,
                 Tag = tag,
                 TeamCaptain = player,
-                Players = new ObservableCollection<Player> { player }
+                Players = new ObservableCollection<Player> { player },
+                Tournaments = new ObservableCollection<Tournament>(),
+                Matches = new ObservableCollection<Match>()
             };
             player.Team = newTeam;
 
-            await _teamsRepository.SaveTeamAsync(newTeam);
+            await _unitOfWork.TeamsRepository.AddAsync(newTeam);
+            _unitOfWork.PlayersRepository.Update(player);
+
+            await _unitOfWork.SaveAsync();
         }
     }
 
     public async Task<bool> CanCreateTeamAsync(string teamName)
     {
-        if (await _teamsRepository.GetTeamByNameAsync(teamName) != null)
-        {
-            return false;
-        }
-        return true;
+        return (await _unitOfWork.TeamsRepository.GetAsync(t => t.Name == teamName)).FirstOrDefault() == null;
     }
 
     public async Task JoinTeamAsync(Team team, string playerName)
     {
-        Player? player = await _playersRepository.GetPlayerByName(playerName);
+        Player? player = (await _unitOfWork.PlayersRepository.GetAsync(p => p.Name == playerName)).FirstOrDefault();
 
         if (player != null && player.Team == null && team.Players.Count < 5)
         {
-            await _teamsRepository.AddPlayerToTeam(team, player);
-        }
-    }
+            player.Team = team;
+            team.Players.Add(player);
 
-    public async Task<Team?> GetTeamByIdAsync(int teamId)
-    {
-        return await _teamsRepository.GetTeamByIdAsync(teamId);
+            _unitOfWork.PlayersRepository.Update(player);
+            _unitOfWork.TeamsRepository.Update(team);
+
+            await _unitOfWork.SaveAsync();
+        }
     }
 }

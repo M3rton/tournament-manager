@@ -6,31 +6,29 @@ namespace TournamentManager.Services;
 
 internal class PlayersService : IPlayersService
 {
-    private readonly IPlayersRepository _playersRepository;
-    private readonly ITeamsRepository _teamsRepository;
+    private readonly IUnitOfWork _unitOfWork;
 
-    public PlayersService(IPlayersRepository playersRepository, ITeamsRepository teamsRepository)
+    public PlayersService(IUnitOfWork unitOfWork)
     {
-        _playersRepository = playersRepository;
-        _teamsRepository = teamsRepository;
-    }
-
-    public async Task<Player?> GetPlayerByIdAsync(int playerId)
-    {
-        return await _playersRepository.GetPlayerById(playerId);
+        _unitOfWork = unitOfWork;
     }
 
     public async Task LeaveTeamAsync(Player player)
     {
-        if (player == null)
-        {
-            return;
-        }
-
         Team? team = player.Team;
         if (team != null)
         {
-            await _teamsRepository.RemovePlayer(team, player);
+            team.Players.Remove(player);
+
+            if (team.TeamCaptain == player)
+            {
+                team.TeamCaptain = team.Players.FirstOrDefault();
+            }
+
+            _unitOfWork.PlayersRepository.Update(player);
+            _unitOfWork.TeamsRepository.Update(team);
+
+            await _unitOfWork.SaveAsync();
         }
     }
 }
