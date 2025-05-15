@@ -1,9 +1,12 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.PixelFormats;
 using System.Collections.ObjectModel;
 using TournamentManager.Core.Entities;
 using TournamentManager.Core.Interfaces.Services;
-using TournamentManager.Core.Options;
+using TournamentManager.ViewModels.Options;
+using TournamentManager.ViewModels.Utilities;
 
 namespace TournamentManager.ViewModels.ViewModels;
 
@@ -49,7 +52,9 @@ public partial class MyTournamentViewModel : ObservableObject
         {
             return;
         }
-        CurrentMatches.AddRange(await _tournamentsService.GenerateBracketAsync(Player.Tournament));
+        var newMatches = await _tournamentsService.GenerateBracketAsync(Player.Tournament);
+
+        CurrentMatches.AddRange(newMatches.Where(m => !m.IsFinished));
     }
 
     [RelayCommand]
@@ -74,7 +79,9 @@ public partial class MyTournamentViewModel : ObservableObject
         }
 
         CurrentMatches.Remove(match);
-        CurrentMatches.AddRange(await _tournamentsService.GenerateBracketAsync(Player.Tournament));
+        var newMatches = await _tournamentsService.GenerateBracketAsync(Player.Tournament);
+
+        CurrentMatches.AddRange(newMatches.Where(m => !m.IsFinished));
 
         if (CurrentMatches.Count == 0)
         {
@@ -113,8 +120,19 @@ public partial class MyTournamentViewModel : ObservableObject
     }
 
     [RelayCommand]
-    private void ExportBracket()
+    private async Task ExportBracket()
     {
-        _tournamentsService.ExportBracketAsImageAsync(Player.Tournament, new BracketExportAsImageOptions());
+        if (Player == null || Player.Tournament == null)
+        {
+            return;
+        }
+
+        var optionsBuilder = new ExportBracketAsImageOptionsBuilder();
+
+        Image<Rgba32> image = await ExportBracketUtils.ExportBracketAsImageAsync(Player.Tournament, optionsBuilder.Build());
+
+        await image.SaveAsBmpAsync("C:\\Users\\Marek\\Downloads\\Temp\\test.bmp");
+
+        image.Dispose();
     }
 }
