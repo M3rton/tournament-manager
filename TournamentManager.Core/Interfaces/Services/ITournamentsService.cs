@@ -1,8 +1,5 @@
-﻿using SixLabors.ImageSharp.PixelFormats;
-using SixLabors.ImageSharp;
-using TournamentManager.Core.Entities;
+﻿using TournamentManager.Core.Entities;
 using TournamentManager.Core.Enums;
-using TournamentManager.Core.Options;
 
 namespace TournamentManager.Core.Interfaces.Services;
 
@@ -22,6 +19,4 @@ public interface ITournamentsService
     Task SaveWinnerAsync(Tournament tournament, Team team);
 
     Task<IEnumerable<Match>> GenerateBracketAsync(Tournament tournament);
-
-    Task ExportBracketAsImageAsync(Tournament tournament, BracketExportAsImageOptions options);
 }
