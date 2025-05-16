@@ -13,6 +13,12 @@ internal class PlayersService : IPlayersService
         _unitOfWork = unitOfWork;
     }
 
+    public async Task UpdateInformationsAsync(Player player)
+    {
+        _unitOfWork.PlayersRepository.Update(player);
+        await _unitOfWork.SaveAsync();
+    }
+
     public async Task LeaveTeamAsync(Player player)
     {
         Team? team = player.Team;

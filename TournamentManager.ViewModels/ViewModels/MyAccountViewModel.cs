@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.Input;
 using System.Collections.ObjectModel;
 using TournamentManager.Core.Entities;
 using TournamentManager.Core.Enums;
+using TournamentManager.Core.Interfaces.Services;
 
 namespace TournamentManager.ViewModels.ViewModels;
 
@@ -21,12 +22,15 @@ public partial class MyAccountViewModel : ObservableObject
     [NotifyCanExecuteChangedFor(nameof(SaveChangesCommand))]
     private Role? _selectedSecondaryRole;
 
-    public MyAccountViewModel()
+    private readonly IPlayersService _playersService;
+
+    public MyAccountViewModel(IPlayersService playersService)
     {
+        _playersService = playersService;
     }
 
     [RelayCommand (CanExecute = nameof(CanSaveChanges))]
-    private void SaveChanges()
+    private async Task SaveChanges()
     {
         if (Player == null)
         {
@@ -40,6 +44,8 @@ public partial class MyAccountViewModel : ObservableObject
 
         Player.MainRole = (Role) SelectedMainRole;
         Player.SecondaryRole = (Role) SelectedSecondaryRole;
+
+        await _playersService.UpdateInformationsAsync(Player);
     }
 
     private bool CanSaveChanges()
