@@ -34,7 +34,7 @@
                 <DockPanel>
                     <Label DockPanel.Dock="Top" Content="Tournament Name" FontSize="26" Margin="50,10,50,0" Foreground="White"/>
                     <TextBox DockPanel.Dock="Bottom" Margin="50,0,50,20" VerticalContentAlignment="Center" Foreground="White"
-                             FontSize="26" Background="#FF464143" MaxLength="20" Text="{Binding TournamentName}"/>
+                             FontSize="26" Background="#FF464143" MaxLength="20" Text="{Binding TournamentName, UpdateSourceTrigger=PropertyChanged}"/>
                 </DockPanel>
                 <DockPanel DockPanel.Dock="Left">
                     <Label DockPanel.Dock="Top" Content="Strategy" FontSize="26" Margin="50,10,50,0" Foreground="White"/>
@@ -49,7 +49,7 @@
             <DockPanel DockPanel.Dock="Bottom" LastChildFill="False">
                 <Label DockPanel.Dock="Top" Margin="50,0,50,20" Content="Description" FontSize="26" Foreground="White"/>
                 <TextBox DockPanel.Dock="Top" Margin="50,0,50,20" VerticalContentAlignment="Top" Foreground="White"
-                         FontSize="26" Background="#FF464143" MaxLength="255" Text="{Binding TournamentDescription}"/>
+                         FontSize="26" Background="#FF464143" MaxLength="255" Text="{Binding TournamentDescription, UpdateSourceTrigger=PropertyChanged}"/>
                 <Button DockPanel.Dock="Top" MaxHeight="80" MaxWidth="240" Content="Create Tournament"
                         FontSize="26" Background="#FF0664E2" Command="{Binding CreateTournamentCommand}"/>
             </DockPanel>

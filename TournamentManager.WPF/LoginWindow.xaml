@@ -7,6 +7,7 @@
         xmlns:views="clr-namespace:TournamentManager.WPF.Views"
         xmlns:viewsModels="clr-namespace:TournamentManager.ViewModels.ViewModels;assembly=TournamentManager.ViewModels"
         mc:Ignorable="d"
+        WindowStartupLocation="CenterScreen"
         Title="Login" Height="450" Width="400" Background="#FF272525">
 
     <Window.Resources>

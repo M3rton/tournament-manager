@@ -22,19 +22,21 @@
             </TextBlock.Text>
         </TextBlock>
 
-        <ItemsControl Grid.Row="1" ItemsSource="{Binding Player.Team.Players}">
-            <ItemsControl.ItemTemplate>
-                <DataTemplate>
-                    <Border CornerRadius="6" BorderBrush="Gray" BorderThickness="2">
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="{Binding Name}" FontSize="20" Margin="30" Foreground="White"/>
-                            <TextBlock Text="{Binding MainRole}" FontSize="20" Margin="30" Foreground="White"/>
-                            <TextBlock Text="{Binding SecondaryRole}" FontSize="20" Margin="30" Foreground="White"/>
-                        </StackPanel>
-                    </Border>
-                </DataTemplate>
-            </ItemsControl.ItemTemplate>
-        </ItemsControl>
+        <ScrollViewer Grid.Row="1">
+            <ItemsControl ItemsSource="{Binding Player.Team.Players}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Border CornerRadius="6" BorderBrush="Gray" BorderThickness="2">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="{Binding Name}" FontSize="20" Margin="30" Foreground="White"/>
+                                <TextBlock Text="{Binding MainRole}" FontSize="20" Margin="30" Foreground="White"/>
+                                <TextBlock Text="{Binding SecondaryRole}" FontSize="20" Margin="30" Foreground="White"/>
+                            </StackPanel>
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </ScrollViewer>
 
         <Grid Grid.Row="2">
             <Grid.ColumnDefinitions>

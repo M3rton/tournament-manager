@@ -5,6 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:TournamentManager.WPF.Views"
         mc:Ignorable="d"
+        WindowStartupLocation="CenterScreen"
         Title="InfoBox" Height="150" Width="250" Background="#FF272525">
     <Grid>
         <TextBlock Text="{Binding Message}" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="White" TextWrapping="Wrap" TextAlignment="Center"/>

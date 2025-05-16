@@ -28,13 +28,13 @@ public partial class App : Application
         services.AddViewModels();
 
         services.AddSingleton(CreateViewModelToViewMap());
-        services.AddSingleton<IWindowManager, WindowManager>();
+        services.AddSingleton<IWindowService, WindowService>();
         services.AddSingleton<IEventAggregator, EventAggregator>();
     }
 
     protected override void OnStartup(StartupEventArgs e)
     {
-        var windowManager = _serviceProvider.GetRequiredService<IWindowManager>();
+        var windowManager = _serviceProvider.GetRequiredService<IWindowService>();
         windowManager.ShowWindow<LoginWindowViewModel>(_ => { });
 
         base.OnStartup(e);

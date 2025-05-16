@@ -28,13 +28,13 @@
             <DockPanel Grid.Row="0" LastChildFill="True">
                 <Label DockPanel.Dock="Top" FontSize="26" Content="Team Name" Margin="50,10,50,0" Foreground="White"/>
                 <TextBox DockPanel.Dock="Top" Margin="50,0,50,20" VerticalContentAlignment="Center" Foreground="White"
-                         FontSize="26" Background="#FF464143" MaxLength="20" Text="{Binding TeamName}"/>
+                         FontSize="26" Background="#FF464143" MaxLength="20" Text="{Binding TeamName, UpdateSourceTrigger=PropertyChanged}"/>
             </DockPanel>
 
             <DockPanel Grid.Row="1" LastChildFill="True">
                 <Label DockPanel.Dock="Top" FontSize="26" Content="Team Tag" Margin="50,10,50,0" Foreground="White"/>
                 <TextBox DockPanel.Dock="Top" Margin="50,0,50,20" VerticalContentAlignment="Center" Foreground="White"
-                         FontSize="26" Background="#FF464143" MaxLength="4" Text="{Binding Tag}"/>
+                         FontSize="26" Background="#FF464143" MaxLength="4" Text="{Binding Tag, UpdateSourceTrigger=PropertyChanged}"/>
             </DockPanel>
 
             <Button Grid.Row="2" Margin="150,25" FontSize="26" Content="Create Team" Background="#FF0664E2" Command="{Binding CreateTeamCommand}"/>
