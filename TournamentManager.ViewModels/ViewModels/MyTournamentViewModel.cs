@@ -4,6 +4,7 @@ using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 using System.Collections.ObjectModel;
 using TournamentManager.Core.Entities;
+using TournamentManager.Core.Interfaces.Navigation;
 using TournamentManager.Core.Interfaces.Services;
 using TournamentManager.ViewModels.Options;
 using TournamentManager.ViewModels.Utilities;
@@ -34,15 +35,19 @@ public partial class MyTournamentViewModel : ObservableObject
 
     private readonly ITournamentsService _tournamentsService;
     private readonly IMatchesService _matchesService;
+    private readonly IWindowService _windowManager;
+    private readonly IBracketGenerationService _bracketGenerationService;
 
     [ObservableProperty]
     [NotifyCanExecuteChangedFor(nameof(AddTeamCommand))]
     private string? _teamName;
 
-    public MyTournamentViewModel(ITournamentsService tournamentsService, IMatchesService matchesService)
+    public MyTournamentViewModel(ITournamentsService tournamentsService, IMatchesService matchesService, IWindowService windowManager, IBracketGenerationService bracketGenerationService)
     {
         _tournamentsService = tournamentsService;
         _matchesService = matchesService;
+        _windowManager = windowManager;
+        _bracketGenerationService = bracketGenerationService;
     }
 
     [RelayCommand]
@@ -52,7 +57,7 @@ public partial class MyTournamentViewModel : ObservableObject
         {
             return;
         }
-        var newMatches = await _tournamentsService.GenerateBracketAsync(Player.Tournament);
+        var newMatches = await _bracketGenerationService.GenerateBracketAsync(Player.Tournament);
 
         CurrentMatches.AddRange(newMatches.Where(m => !m.IsFinished));
     }
@@ -79,7 +84,7 @@ public partial class MyTournamentViewModel : ObservableObject
         }
 
         CurrentMatches.Remove(match);
-        var newMatches = await _tournamentsService.GenerateBracketAsync(Player.Tournament);
+        var newMatches = await _bracketGenerationService.GenerateBracketAsync(Player.Tournament);
 
         CurrentMatches.AddRange(newMatches.Where(m => !m.IsFinished));
 
@@ -90,12 +95,6 @@ public partial class MyTournamentViewModel : ObservableObject
 
             Winner = Player.Tournament.Winner;
         }
-    }
-
-    [RelayCommand]
-    private void ExportTournament()
-    {
-
     }
 
     [RelayCommand(CanExecute = nameof(CanAddTeam))]
@@ -120,6 +119,29 @@ public partial class MyTournamentViewModel : ObservableObject
     }
 
     [RelayCommand]
+    private async Task ExportTournament()
+    {
+        if (Player == null || Player.Tournament == null)
+        {
+            return;
+        }
+
+        var optionsBuilder = new ExportBracketAsImageOptionsBuilder();
+
+        string? saveTo = await _windowManager.ShowSaveFileDialog("Save Tournament", "TXT|*.txt", $"{Player.Tournament.Name}_bracket_export");
+
+        if (string.IsNullOrEmpty(saveTo))
+        {
+            return;
+        }
+
+        using var stream = new FileStream(saveTo, FileMode.Create);
+        using var writer = new StreamWriter(stream);
+
+        await _tournamentsService.ExportTournamentAsync(Player.Tournament, writer);
+    }
+
+    [RelayCommand]
     private async Task ExportBracket()
     {
         if (Player == null || Player.Tournament == null)
@@ -129,10 +151,15 @@ public partial class MyTournamentViewModel : ObservableObject
 
         var optionsBuilder = new ExportBracketAsImageOptionsBuilder();
 
-        Image<Rgba32> image = await ExportBracketUtils.ExportBracketAsImageAsync(Player.Tournament, optionsBuilder.Build());
+        using Image<Rgba32> image = await ExportBracketUtils.ExportBracketAsImageAsync(Player.Tournament, optionsBuilder.Build());
 
-        await image.SaveAsBmpAsync("C:\\Users\\Marek\\Downloads\\Temp\\test.bmp");
+        string? saveTo = await _windowManager.ShowSaveFileDialog("Save Bracket as Image", "BMP|*.bmp|PNG|*.png|JPEG|*.jpeg|GIF|*.gif", $"{Player.Tournament.Name}_bracket_export");
 
-        image.Dispose();
+        if (string.IsNullOrEmpty(saveTo))
+        {
+            return;
+        }
+
+        await image.SaveAsync(saveTo);
     }
 }
