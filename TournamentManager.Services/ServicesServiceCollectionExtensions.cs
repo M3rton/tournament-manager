@@ -12,6 +12,7 @@ public static class ServicesServiceCollectionExtensions
         services.AddScoped<IPlayersService, PlayersService>();
         services.AddScoped<IMatchesService, MatchesService>();
         services.AddScoped<IUsersService, UsersService>();
+        services.AddScoped<IBracketGenerationService, BracketGenerationService>();
 
         return services;
     }

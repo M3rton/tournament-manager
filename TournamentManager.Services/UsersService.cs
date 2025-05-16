@@ -47,6 +47,6 @@ internal class UsersService : IUsersService
 
     public async Task<bool> CanRegisterAsync(string userName)
     {
-        return (await _unitOfWork.UsersRepository.GetAsync(u => u.Name == userName)).FirstOrDefault() == null;
+        return (await _unitOfWork.UsersRepository.GetAsync(u => u.Name.ToLower() == userName.ToLower())).FirstOrDefault() == null;
     }
 }

@@ -43,7 +43,7 @@ internal class TeamsService : ITeamsService
 
     public async Task<bool> CanCreateTeamAsync(string teamName)
     {
-        return (await _unitOfWork.TeamsRepository.GetAsync(t => t.Name == teamName)).FirstOrDefault() == null;
+        return (await _unitOfWork.TeamsRepository.GetAsync(t => t.Name.ToLower() == teamName.ToLower())).FirstOrDefault() == null;
     }
 
     public async Task JoinTeamAsync(Team team, string playerName)
