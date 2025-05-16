@@ -1,4 +1,6 @@
-﻿namespace TournamentManager.Core.Entities;
+﻿using TournamentManager.Core.Enums;
+
+namespace TournamentManager.Core.Entities;
 
 public class Player
 {
@@ -6,6 +8,6 @@ public class Player
     public string Name { get; set; }
     public virtual Team? Team { get; set; }
     public virtual Tournament? Tournament { get; set; }
-    public string? MainRole { get; set; }
-    public string? SecondaryRole { get; set; }
+    public Role? MainRole { get; set; }
+    public Role? SecondaryRole { get; set; }
 }
