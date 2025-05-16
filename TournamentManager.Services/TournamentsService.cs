@@ -1,5 +1,4 @@
-﻿using SixLabors.ImageSharp;
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using TournamentManager.Core.Entities;
 using TournamentManager.Core.Enums;
 using TournamentManager.Core.Interfaces.Repositories;
@@ -44,7 +43,7 @@ internal class TournamentsService : ITournamentsService
 
     public async Task<bool> CanCreateTournamentAsync(string tournamentName)
     {
-        return (await _unitOfWork.TournamentsRepository.GetAsync(t => t.Name == tournamentName)).FirstOrDefault() == null;
+        return (await _unitOfWork.TournamentsRepository.GetAsync(t => t.Name.ToLower() == tournamentName.ToLower())).FirstOrDefault() == null;
     }
 
     public async Task AddTeamAsync(Tournament tournament, string teamName)
@@ -76,138 +75,100 @@ internal class TournamentsService : ITournamentsService
         await _unitOfWork.SaveAsync();
     }
 
-    public async Task<IEnumerable<Match>> GenerateBracketAsync(Tournament tournament)
+    public Task ExportTournamentAsync(Tournament tournament, StreamWriter streamWriter) => Task.Run(() =>
     {
         switch (tournament.Strategy)
         {
             case StrategyType.Spider:
-                return await GenerateSpiderBracketAsync(tournament);
-            case StrategyType.Groups:
-                return await GenerateGroupsBracketAsync(tournament);
+                ExportSpiderTournamentAsync(tournament, streamWriter);
+                break;
+            case StrategyType.DoubleElimination:
+                ExportDoubleEliminationTournamentAsync(tournament, streamWriter);
+                break;
             default:
                 throw new ArgumentOutOfRangeException();
         }
+    });
+
+    private void ExportSpiderTournamentAsync(Tournament tournament, StreamWriter streamWriter)
+    {
+        foreach (var match in tournament.Matches)
+        {
+            if (match.FirstTeam == null || match.SecondTeam == null)
+            {
+                continue;
+            }
+
+            streamWriter.WriteLine($"Round {match.Round}: {match.FirstTeam?.Name} vs {match.SecondTeam?.Name}");
+            if (match.WinnerTeam != null)
+            {
+                streamWriter.WriteLine($"Winner: {match.WinnerTeam.Name}");
+            }
+            else
+            {
+                streamWriter.WriteLine("Match not finished yet.");
+            }
+            streamWriter.WriteLine();
+        }
+
+        if (tournament.Winner != null)
+        {
+            streamWriter.WriteLine($"Tournament Winner: {tournament.Winner.Name}");
+        }
     }
 
-    private async Task<IEnumerable<Match>> GenerateSpiderBracketAsync(Tournament tournament)
+    private void ExportDoubleEliminationTournamentAsync(Tournament tournament, StreamWriter streamWriter)
     {
-        IEnumerable<Match> CreateMatches(int roundSize, IEnumerable<Team?> teams, int currentRound)
+        var winnersBracket = tournament.Matches
+            .Where(m => m.IsWinnersBracket)
+            .ToList();
+        var losersBracket = tournament.Matches
+            .Where(m => !m.IsWinnersBracket)
+            .ToList();
+
+        streamWriter.WriteLine("Winners Bracket:");
+        foreach (var match in winnersBracket)
         {
-            var newMatches = new List<Match>();
-
-            int matchNumber = 1;
-            var teamsEnumerator = teams.GetEnumerator();
-            while (teamsEnumerator.MoveNext())
+            if (match.FirstTeam == null || match.SecondTeam == null)
             {
-                Team? firstTeam = teamsEnumerator.Current;
-                if (firstTeam == null)
-                {
-                    return Enumerable.Empty<Match>();
-                }
-
-                Team? secondTeam = null;
-                if (teamsEnumerator.MoveNext())
-                {
-                    secondTeam = teamsEnumerator.Current;
-                }
-
-                Match match = new Match
-                {
-                    Round = currentRound,
-                    MatchNumber = matchNumber,
-                    FirstTeam = firstTeam,
-                    SecondTeam = secondTeam,
-                    WinnerTeam = secondTeam == null ? firstTeam : null,
-                    IsFinished = secondTeam == null ? true : false
-                };
-
-                newMatches.Add(match);
-                matchNumber++;
+                continue;
             }
 
-            return newMatches;
+            streamWriter.WriteLine($"Round {match.Round}: {match.FirstTeam?.Name} vs {match.SecondTeam?.Name}");
+            if (match.WinnerTeam != null)
+            {
+                streamWriter.WriteLine($"Winner: {match.WinnerTeam.Name}");
+            }
+            else
+            {
+                streamWriter.WriteLine("Match not finished yet.");
+            }
+            streamWriter.WriteLine();
         }
 
-        async Task SaveMatches(IEnumerable<Match> matches)
+        streamWriter.WriteLine("Losers Bracket:");
+        foreach (var match in losersBracket)
         {
-            foreach (var match in matches)
+            if (match.FirstTeam == null || match.SecondTeam == null)
             {
-                await _unitOfWork.MatchesRepository.AddAsync(match);
-
-                match.FirstTeam.Matches.Add(match);
-                _unitOfWork.TeamsRepository.Update(match.FirstTeam);
-
-                if (match.SecondTeam != null)
-                {
-                    match.SecondTeam.Matches.Add(match);
-                    _unitOfWork.TeamsRepository.Update(match.SecondTeam);
-                }
-
-                tournament.Matches.Add(match);
-                _unitOfWork.TournamentsRepository.Update(tournament);
-
-                await _unitOfWork.SaveAsync();
+                continue;
             }
+
+            streamWriter.WriteLine($"Round {match.Round}: {match.FirstTeam?.Name} vs {match.SecondTeam?.Name}");
+            if (match.WinnerTeam != null)
+            {
+                streamWriter.WriteLine($"Winner: {match.WinnerTeam.Name}");
+            }
+            else
+            {
+                streamWriter.WriteLine("Match not finished yet.");
+            }
+            streamWriter.WriteLine();
         }
 
-        IEnumerable<Match> newMatches;
-        if (tournament.Matches.Count == 0)
+        if (tournament.Winner != null)
         {
-            int teamsCount = tournament.Teams.Count;
-
-            if (teamsCount < 2)
-            {
-                return Enumerable.Empty<Match>();
-            }
-
-            int bracketSize = 2;
-            while (bracketSize < teamsCount)
-            {
-                bracketSize *= 2;
-            }
-
-            IList<Team?> teams = new List<Team?>();
-
-            for (int i = 0; i < bracketSize / 2; i++)
-            {
-                teams.Add(tournament.Teams[i]);
-                teams.Add((bracketSize - 1 - i) >= tournament.Teams.Count ? null : tournament.Teams[bracketSize - 1 - i]);
-            }
-
-            newMatches = CreateMatches(teams.Count(), teams, 1);
-            await SaveMatches(newMatches);
+            streamWriter.WriteLine($"Tournament Winner: {tournament.Winner.Name}");
         }
-        else
-        {
-            int currentRound = tournament.Matches.Last().Round + 1;
-
-            IEnumerable<Match> lastRoundMatches = tournament.Matches.Where(m => m.Round == currentRound - 1);
-
-            if (lastRoundMatches.Any(m => !m.IsFinished) || lastRoundMatches.Count() == 1)
-            {
-                return Enumerable.Empty<Match>();
-            }
-
-            var lastRoundWinners = lastRoundMatches
-                .OrderBy(m => m.MatchNumber)
-                .Select(m => m.WinnerTeam);
-
-            var lastRoundWinnerEnumerator = lastRoundWinners.GetEnumerator();
-
-            newMatches = CreateMatches(lastRoundWinners.Count() / 2, lastRoundWinners, currentRound);
-            await SaveMatches(newMatches);
-        }
-
-        return newMatches;
-    }
-
-    private async Task<IEnumerable<Match>> GenerateGroupsBracketAsync(Tournament tournament)
-    {
-        throw new NotImplementedException();
-    }
-
-    public async Task ExportTournament(Tournament tournament)
-    {
-
     }
 }
