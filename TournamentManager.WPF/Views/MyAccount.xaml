@@ -6,7 +6,25 @@
              xmlns:local="clr-namespace:TournamentManager.WPF.Views"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
+    
+    <UserControl.Resources>
+        <Style TargetType="{x:Type TextBlock}">
+            <Setter Property="Foreground" Value="Black"/>
+        </Style>
+    </UserControl.Resources>
+
     <Grid>
-        
+        <DockPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+            <Label DockPanel.Dock="Top" Content="Main Role" FontSize="26" HorizontalAlignment="Center" Foreground="White"/>
+            <ComboBox DockPanel.Dock="Top" Padding="80, 5" Margin="0,0,0,20" VerticalAlignment="Center" HorizontalAlignment="Center"
+                      ItemsSource="{Binding Roles}" FontSize="20" SelectedItem="{Binding SelectedMainRole}"/>
+
+            <Label DockPanel.Dock="Top" Content="Secondary Role" FontSize="26" HorizontalAlignment="Center" Foreground="White"/>
+            <ComboBox DockPanel.Dock="Top" Padding="80, 5" Margin="0,0,0,20" VerticalAlignment="Center" HorizontalAlignment="Center"
+                      ItemsSource="{Binding Roles}" FontSize="20" SelectedItem="{Binding SelectedSecondaryRole}"/>
+
+            <Button DockPanel.Dock="Top" Content="Save" Padding="40, 5" VerticalAlignment="Center" HorizontalAlignment="Center"
+                    Background="#FF0664E2" Command="{Binding SaveChangesCommand}"/>
+        </DockPanel>
     </Grid>
 </UserControl>
