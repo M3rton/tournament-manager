@@ -18,5 +18,5 @@ public interface ITournamentsService
 
     Task SaveWinnerAsync(Tournament tournament, Team team);
 
-    Task<IEnumerable<Match>> GenerateBracketAsync(Tournament tournament);
+    Task ExportTournamentAsync(Tournament tournament, StreamWriter streamWriter);
 }
