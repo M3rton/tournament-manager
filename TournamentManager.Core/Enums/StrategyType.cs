@@ -3,5 +3,5 @@
 public enum StrategyType
 {
     Spider,
-    Groups
+    DoubleElimination
 }
