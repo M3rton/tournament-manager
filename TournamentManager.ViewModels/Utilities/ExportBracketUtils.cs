@@ -3,6 +3,7 @@ using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Drawing.Processing;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
+using System.Linq;
 using TournamentManager.Core.Entities;
 using TournamentManager.Core.Enums;
 using TournamentManager.ViewModels.Options;
@@ -17,8 +18,8 @@ internal static class ExportBracketUtils
         {
             case StrategyType.Spider:
                 return ExportSpiderBracketAsImage(tournament, options);
-            case StrategyType.Groups:
-                throw new NotImplementedException("Groups bracket export is not implemented yet.");
+            case StrategyType.DoubleElimination:
+                return ExportDoubleEliminationBracketAsImageAsync(tournament, options);
             default:
                 throw new ArgumentOutOfRangeException();
         }
@@ -37,7 +38,7 @@ internal static class ExportBracketUtils
         int maxTeamNameLength = 0;
         foreach (var match in tournament.Matches)
         {
-            if (match.FirstTeam.Name.Length > maxTeamNameLength)
+            if (match.FirstTeam != null && match.FirstTeam.Name.Length > maxTeamNameLength)
             {
                 maxTeamNameLength = match.FirstTeam.Name.Length;
             }
@@ -49,9 +50,101 @@ internal static class ExportBracketUtils
 
         BracketImageRenderingOptions internalOptions = SetUpInternalOptions(maxTeamNameLength, roundsCount, tournament.Matches, exportOptions);
 
-        DrawSpiderBracketRoot(internalOptions, exportOptions);
+        double imageHeight;
+        if (roundsCount <= 1)
+        {
+            imageHeight = 2 * exportOptions.ImageHeightOffSet + internalOptions.MatchHeight * roundsCount;
+        }
+        else
+        {
+            imageHeight = 2 * exportOptions.ImageHeightOffSet + internalOptions.MatchHeight * Math.Pow(2, roundsCount - 2) + exportOptions.SpaceBetweenMatches * (Math.Pow(2, roundsCount - 2) - 1);
+        }
+        double imageWidth = 2 * exportOptions.ImageWidthOffSet + internalOptions.MatchWidth * (roundsCount * 2 - 1) + exportOptions.SpaceBetweenRounds * (roundsCount * 2 - 2);
+
+        Image<Rgba32> image = new Image<Rgba32>((int)Math.Ceiling(imageWidth), (int)Math.Ceiling(imageHeight));
+        image.Mutate(x => x.BackgroundColor(exportOptions.BackgroundColor));
+
+        internalOptions.Image = image;
+
+        DrawBracketRoot(internalOptions, exportOptions);
 
         return internalOptions.Image;
+    }
+
+    private static Image<Rgba32> ExportDoubleEliminationBracketAsImageAsync(Tournament tournament, ExportBracketAsImageOptions exportOptions)
+    {
+        int bracketSize = 2;
+        int roundsCount = 1;
+        while (bracketSize < tournament.Teams.Count)
+        {
+            bracketSize *= 2;
+            roundsCount++;
+        }
+
+        int maxTeamNameLength = 0;
+        foreach (var match in tournament.Matches)
+        {
+            if (match.FirstTeam != null && match.FirstTeam.Name.Length > maxTeamNameLength)
+            {
+                maxTeamNameLength = match.FirstTeam.Name.Length;
+            }
+            if (match.SecondTeam != null && match.SecondTeam.Name.Length > maxTeamNameLength)
+            {
+                maxTeamNameLength = match.SecondTeam.Name.Length;
+            }
+        }
+
+        int losersBracketRounds = (roundsCount - 1) * 2 - 3;
+        BracketImageRenderingOptions losersBracketOptions = SetUpInternalOptions(maxTeamNameLength, losersBracketRounds, tournament.Matches.Where(m => !m.IsWinnersBracket), exportOptions);
+        double losersBracketImageHeight;
+        if (losersBracketRounds <= 1)
+        {
+            losersBracketImageHeight = 2 * exportOptions.ImageHeightOffSet + losersBracketOptions.MatchHeight * losersBracketRounds;
+        }
+        else
+        {
+            losersBracketImageHeight = 2 * exportOptions.ImageHeightOffSet + losersBracketOptions.MatchHeight * Math.Pow(2, losersBracketRounds - 2) + exportOptions.SpaceBetweenMatches * (Math.Pow(2, losersBracketRounds - 2) - 1);
+        }
+        double losersBracketImageWidth = 2 * exportOptions.ImageWidthOffSet + losersBracketOptions.MatchWidth * (losersBracketRounds * 2 - 1) + exportOptions.SpaceBetweenRounds * (losersBracketRounds * 2 - 2);
+
+        Image<Rgba32> losersBracketImage = new Image<Rgba32>((int)Math.Ceiling(losersBracketImageWidth), (int)Math.Ceiling(losersBracketImageHeight));
+        losersBracketImage.Mutate(x => x.BackgroundColor(exportOptions.BackgroundColor));
+
+        losersBracketOptions.Image = losersBracketImage;
+
+        DrawBracketRoot(losersBracketOptions, exportOptions);
+
+        BracketImageRenderingOptions winnersBracketOptions = SetUpInternalOptions(maxTeamNameLength, roundsCount, tournament.Matches.Where(m => m.IsWinnersBracket), exportOptions);
+        double winnersBracketImageHeight;
+        if (roundsCount <= 1)
+        {
+            winnersBracketImageHeight = 2 * exportOptions.ImageHeightOffSet + winnersBracketOptions.MatchHeight * roundsCount;
+        }
+        else
+        {
+            winnersBracketImageHeight = 2 * exportOptions.ImageHeightOffSet + winnersBracketOptions.MatchHeight * Math.Pow(2, roundsCount - 2) + exportOptions.SpaceBetweenMatches * (Math.Pow(2, roundsCount - 2) - 1);
+        }
+        double winnersBracketImageWidth = 2 * exportOptions.ImageWidthOffSet + winnersBracketOptions.MatchWidth * (roundsCount * 2 - 1) + exportOptions.SpaceBetweenRounds * (roundsCount * 2 - 2);
+
+        Image<Rgba32> winnersBracketImage = new Image<Rgba32>((int)Math.Ceiling(winnersBracketImageWidth), (int)Math.Ceiling(winnersBracketImageHeight));
+        winnersBracketImage.Mutate(x => x.BackgroundColor(exportOptions.BackgroundColor));
+
+        winnersBracketOptions.Image = winnersBracketImage;
+
+        DrawBracketRoot(winnersBracketOptions, exportOptions);
+
+        losersBracketImage.SaveAsBmp("C:\\Users\\Marek\\Downloads\\Temp\\double_elimination_losers.bmp");
+        winnersBracketImage.SaveAsBmp("C:\\Users\\Marek\\Downloads\\Temp\\double_elimination_winners.bmp");
+
+        Image<Rgba32> finalImage = new Image<Rgba32>((int)Math.Max(losersBracketImageWidth, winnersBracketImageWidth), (int)(losersBracketImageHeight + winnersBracketImageHeight));
+        finalImage.Mutate(x => x.BackgroundColor(exportOptions.BackgroundColor));
+
+        int widthDiff = (int)((finalImage.Width - winnersBracketImageWidth) / 2);
+
+        finalImage.Mutate(x => x.DrawImage(winnersBracketImage, new Point(0, 0), 1f));
+        finalImage.Mutate(x => x.DrawImage(losersBracketImage, new Point(widthDiff, (int)losersBracketImageHeight), 1f));
+
+        return finalImage;
     }
 
     private static BracketImageRenderingOptions SetUpInternalOptions(int maxTeamNameLength, int totalRounds, IEnumerable<Match> matches, ExportBracketAsImageOptions exportOptions)
@@ -70,21 +163,6 @@ internal static class ExportBracketUtils
         double matchHeight = (2 * nameSize.Height + 4 * exportOptions.TextPadding + 3 * exportOptions.LinesThickness);
         double matchWidth = (nameSize.Width + 2 * exportOptions.TextPadding + 2 * exportOptions.LinesThickness);
 
-        double imageHeight;
-        if (totalRounds <= 1)
-        {
-            imageHeight = 2 * exportOptions.ImageHeightOffSet + matchHeight * totalRounds;
-        }
-        else
-        {
-            imageHeight = 2 * exportOptions.ImageHeightOffSet + matchHeight * Math.Pow(2, totalRounds - 2) + exportOptions.SpaceBetweenMatches * (Math.Pow(2, totalRounds - 2) - 1);
-        }
-        double imageWidth = 2 * exportOptions.ImageWidthOffSet + matchWidth * (totalRounds * 2 - 1) + exportOptions.SpaceBetweenRounds * (totalRounds * 2 - 2);
-
-        Image<Rgba32> image = new Image<Rgba32>((int)Math.Ceiling(imageWidth), (int)Math.Ceiling(imageHeight));
-
-        image.Mutate(x => x.BackgroundColor(exportOptions.BackgroundColor));
-
         double lineLength;
         if (totalRounds < 3)
         {
@@ -97,7 +175,7 @@ internal static class ExportBracketUtils
 
         Size rectangleSize = new Size((int)matchWidth, (int)matchHeight);
 
-        BracketImageRenderingOptions internalOptions = new BracketImageRenderingOptions(image, matches, font)
+        BracketImageRenderingOptions internalOptions = new BracketImageRenderingOptions(matches, font)
         {
             BoxSize = rectangleSize,
             MatchHeight = (int)matchHeight,
@@ -110,8 +188,13 @@ internal static class ExportBracketUtils
         return internalOptions;
     }
 
-    private static void DrawSpiderBracketRoot(BracketImageRenderingOptions internalOptions, ExportBracketAsImageOptions exportOptions)
+    private static void DrawBracketRoot(BracketImageRenderingOptions internalOptions, ExportBracketAsImageOptions exportOptions)
     {
+        if (internalOptions.Image == null)
+        {
+            return;
+        }
+
         double roundHeightIdentation;
         if (internalOptions.CurrentRound < 3)
         {
@@ -191,6 +274,11 @@ internal static class ExportBracketUtils
 
     private static void DrawConnectingLine(Point point, BracketImageRenderingOptions internalOptions, ExportBracketAsImageOptions exportOptions)
     {
+        if (internalOptions.Image == null)
+        {
+            return;
+        }
+
         int moveBy;
         if (internalOptions.IsRightSide)
         {
@@ -243,6 +331,11 @@ internal static class ExportBracketUtils
 
     private static void DrawMatch(Point point, BracketImageRenderingOptions internalOptions, ExportBracketAsImageOptions exportOptions)
     {
+        if (internalOptions.Image == null)
+        {
+            return;
+        }
+
         Match? match = internalOptions.Matches
             .Where(m => m.Round == internalOptions.CurrentRound && m.MatchNumber == internalOptions.CurrentMatchNumber)
             .FirstOrDefault();
@@ -253,8 +346,11 @@ internal static class ExportBracketUtils
         string secondTeamScore = "0";
         if (match != null)
         {
-            firstTeamName = match.FirstTeam.Name;
-            firstTeamScore = match.FirstTeamWins.ToString();
+            if (match.FirstTeam != null)
+            {
+                firstTeamName = match.FirstTeam.Name;
+                firstTeamScore = match.FirstTeamWins.ToString();
+            }
 
             if (match.SecondTeam != null)
             {

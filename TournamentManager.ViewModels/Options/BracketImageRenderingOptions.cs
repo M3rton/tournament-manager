@@ -7,7 +7,7 @@ namespace TournamentManager.ViewModels.Options;
 
 internal class BracketImageRenderingOptions : ICloneable
 {
-    public Image<Rgba32> Image { get; set; }
+    public Image<Rgba32>? Image { get; set; }
     public Font Font { get; set; }
     public IEnumerable<Match> Matches { get; set; }
     public Size BoxSize { get; set; }
@@ -32,9 +32,8 @@ internal class BracketImageRenderingOptions : ICloneable
         CurrentMatchNumber = clone.CurrentMatchNumber;
     }
 
-    internal BracketImageRenderingOptions(Image<Rgba32> image, IEnumerable<Match> matches, Font font)
+    internal BracketImageRenderingOptions(IEnumerable<Match> matches, Font font)
     {
-        Image = image;
         Matches = matches;
         Font = font;
     }
