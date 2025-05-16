@@ -43,7 +43,7 @@ public partial class CreateTournamentViewModel : ObservableObject
         _tournamentsService = tournamentsService;
 
         MaxTeams = new ObservableCollection<int>();
-        for (int i = 2; i <= 64; i*=2)
+        for (int i = 4; i <= 64; i*=2)
         {
             MaxTeams.Add(i);
         }
@@ -52,7 +52,7 @@ public partial class CreateTournamentViewModel : ObservableObject
         _changeViewModelEvent = eventAggregator.GetEvent<ChangeViewModelEvent>();
     }
 
-    [RelayCommand (CanExecute =nameof(CanCreateTournament))]
+    [RelayCommand (CanExecute = nameof(CanCreateTournament))]
     private async Task CreateTournament()
     {
         if (Player == null || Player.Tournament != null)

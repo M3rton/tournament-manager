@@ -11,13 +11,12 @@ public partial class MainWindowViewModel : ObservableObject, IDisposable
 {
     public User? User { get; set; }
 
-    private readonly IViewModelFactory<UpcomingTournamentsViewModel> _upcommingTournaments;
     private readonly IViewModelFactory<MyTournamentViewModel> _myTournament;
     private readonly IViewModelFactory<CreateTournamentViewModel> _createTournament;
     private readonly IViewModelFactory<MyTeamViewModel> _myTeam;
     private readonly IViewModelFactory<CreateTeamViewModel> _createTeam;
     private readonly IViewModelFactory<MyAccountViewModel> _myAccount;
-    private readonly IWindowManager _windowManager;
+    private readonly IWindowService _windowManager;
 
     private readonly ChangeViewModelEvent _changeViewModelEvent;
     private readonly PopUpMessageEvent _popUpMessageEvent;
@@ -31,17 +30,15 @@ public partial class MainWindowViewModel : ObservableObject, IDisposable
     private readonly Dictionary<string, Action> _changeViewModelMap;
 
     public MainWindowViewModel(
-        IViewModelFactory<UpcomingTournamentsViewModel> upcommingTournaments,
         IViewModelFactory<MyTournamentViewModel> myTournament,
         IViewModelFactory<CreateTournamentViewModel> createTournament,
         IViewModelFactory<MyTeamViewModel> myTeam,
         IViewModelFactory<CreateTeamViewModel> createTeam,
         IViewModelFactory<MyAccountViewModel> myAccount,
-        IWindowManager windowManager,
+        IWindowService windowManager,
         IEventAggregator eventAggregator
         )
     {
-        _upcommingTournaments = upcommingTournaments;
         _myTournament = myTournament;
         _createTournament = createTournament;
         _myTeam = myTeam;
@@ -52,7 +49,7 @@ public partial class MainWindowViewModel : ObservableObject, IDisposable
         _changeViewModelEvent = eventAggregator.GetEvent<ChangeViewModelEvent>();
         _popUpMessageEvent = eventAggregator.GetEvent<PopUpMessageEvent>();
 
-        _changeViewModelEvent.Subscribe(async (payload) => await OnChangeViewModel(payload));
+        _changeViewModelEvent.Subscribe(OnChangeViewModel);
         _popUpMessageEvent.Subscribe(OnPopUpMessage);
 
         _changeViewModelMap = CreateMap();
@@ -62,7 +59,6 @@ public partial class MainWindowViewModel : ObservableObject, IDisposable
     {
         return new()
         {
-            { "UpcomingTournamentsViewModel", OpenUpcommingTournaments },
             { "MyTournamentViewModel", OpenMyTournament },
             { "CreateTournamentViewModel", OpenMyTournament },
             { "MyTeamViewModel", OpenMyTeam },
@@ -79,7 +75,7 @@ public partial class MainWindowViewModel : ObservableObject, IDisposable
         }
     }
 
-    public async Task OnChangeViewModel(ChangeViewModelPayload payload)
+    public void OnChangeViewModel(ChangeViewModelPayload payload)
     {
         if (payload.Sender == CurrentViewModel && _changeViewModelMap.TryGetValue(payload.ViewModelName, out var action))
         {
@@ -88,20 +84,16 @@ public partial class MainWindowViewModel : ObservableObject, IDisposable
     }
 
     [RelayCommand]
-    private void OpenUpcommingTournaments()
-    {
-        var newViewModel = _upcommingTournaments.Create();
-
-        CurrentViewModelType = newViewModel.GetType();
-        CurrentViewModel = newViewModel;
-    }
-
-    [RelayCommand]
     private void OpenMyTournament()
     {
+        if (User == null)
+        {
+            return;
+        }
+
         ObservableObject newViewModel;
 
-        if (User!.Account.Tournament == null)
+        if (User.Account.Tournament == null)
         {
             var createTournament= _createTournament.Create();
             createTournament.Player = User.Account;
@@ -121,9 +113,14 @@ public partial class MainWindowViewModel : ObservableObject, IDisposable
     [RelayCommand]
     private void OpenMyTeam()
     {
+        if (User == null)
+        {
+            return;
+        }
+
         ObservableObject newViewModel;
 
-        if (User!.Account.Team == null)
+        if (User.Account.Team == null)
         {
             var createTeam = _createTeam.Create();
             createTeam.Player = User.Account;
@@ -143,16 +140,21 @@ public partial class MainWindowViewModel : ObservableObject, IDisposable
     [RelayCommand]
     private void OpenMyAccount()
     {
+        if (User == null)
+        {
+            return;
+        }
+
         var newViewModel = _myAccount.Create();
 
-        newViewModel.User = User;
+        newViewModel.Player = User.Account;
         CurrentViewModelType = newViewModel.GetType();
         CurrentViewModel = newViewModel;
     }
 
     public void Dispose()
     {
-        _changeViewModelEvent.Unsubscribe(async (payload) => await OnChangeViewModel(payload));
+        _changeViewModelEvent.Unsubscribe(OnChangeViewModel);
         _popUpMessageEvent.Unsubscribe(OnPopUpMessage);
     }
 }

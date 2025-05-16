@@ -10,7 +10,7 @@ public partial class LoginWindowViewModel : ObservableObject, IDisposable
 {
     private readonly IViewModelFactory<LoginViewModel> _loginFactory;
     private readonly IViewModelFactory<RegisterViewModel> _registerFactory;
-    private readonly IWindowManager _windowManager;
+    private readonly IWindowService _windowManager;
 
     private readonly SignedInEvent _signedEvent;
     private readonly ChangeViewModelEvent _changeViewModelEvent;
@@ -25,7 +25,7 @@ public partial class LoginWindowViewModel : ObservableObject, IDisposable
         IViewModelFactory<LoginViewModel> loginFactory,
         IViewModelFactory<RegisterViewModel> registerFactory,
         IEventAggregator eventAggregator,
-        IWindowManager windowManager)
+        IWindowService windowManager)
     {
         _windowManager = windowManager;
         _loginFactory = loginFactory;

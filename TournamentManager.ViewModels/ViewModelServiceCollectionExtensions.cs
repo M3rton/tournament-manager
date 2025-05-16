@@ -14,7 +14,6 @@ public static class ViewModelServiceCollectionExtensions
         services.AddFormFactory<LoginViewModel>();
         services.AddFormFactory<RegisterViewModel>();
         services.AddFormFactory<PopUpWindowViewModel>();
-        services.AddFormFactory<UpcomingTournamentsViewModel>();
         services.AddFormFactory<MyTournamentViewModel>();
         services.AddFormFactory<MyAccountViewModel>();
         services.AddFormFactory<MyTeamViewModel>();
