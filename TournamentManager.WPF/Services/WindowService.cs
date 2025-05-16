@@ -1,16 +1,17 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Win32;
 using System.Windows;
 using TournamentManager.Core.Interfaces.Navigation;
 
 namespace TournamentManager.WPF.Services;
 
-internal class WindowManager : IWindowManager
+internal class WindowService : IWindowService
 {
     private readonly IServiceProvider _serviceProvider;
     private readonly Dictionary<Type, Type> _viewModelToViewMap;
     private readonly Dictionary<object, Window> _openWindows = new Dictionary<object, Window>();
 
-    public WindowManager(IServiceProvider serviceProvider, Dictionary<Type, Type> viewModelToViewMap)
+    public WindowService(IServiceProvider serviceProvider, Dictionary<Type, Type> viewModelToViewMap)
     {
         _serviceProvider = serviceProvider;
         _viewModelToViewMap = viewModelToViewMap;
@@ -46,6 +47,19 @@ internal class WindowManager : IWindowManager
             }
         }
     }
+
+    public Task<string?> ShowSaveFileDialog(string? title = null, string? filter = null, string? defaultFileName = null) => Task.Run(() =>
+    {
+        var saveFileDialog = new SaveFileDialog
+        {
+            Title = title,
+            Filter = filter,
+            FileName = defaultFileName
+        };
+
+        bool? result = saveFileDialog.ShowDialog();
+        return result == true ? saveFileDialog.FileName : null;
+    });
 
     public void CloseWindow<TViewModel>(TViewModel viewModel) where TViewModel : class
     {
